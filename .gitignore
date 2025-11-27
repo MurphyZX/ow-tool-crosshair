@@ -45,3 +45,7 @@ next-env.d.ts
 *.iws
 *.iml
 *.ipr
+
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
