@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Upload, X, ImageIcon, Check, AlertCircle, LogIn } from "lucide-react"
+import { Upload, X, ImageIcon, Check, AlertCircle, LogIn, Loader2 } from "lucide-react"
 import { createCrosshairAction } from "@/app/actions/crosshair-actions"
 import { createCrosshairInitialState, type CreateCrosshairState } from "@/app/actions/crosshair-state"
 import { cn } from "@/lib/utils"
@@ -43,9 +43,9 @@ const crosshairColors = ["白色", "绿色", "黄色", "青色", "粉色", "红�
 
 export default function CreatePage() {
   const [previewImage, setPreviewImage] = useState<string | null>(null)
-  const [imageData, setImageData] = useState<string | null>(null)
-  const [imageName, setImageName] = useState<string | null>(null)
-  const [imageType, setImageType] = useState<string | null>(null)
+  const [uploadedImage, setUploadedImage] = useState<{ url: string; key: string } | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
   const [selectedHero, setSelectedHero] = useState(heroes[0])
   const [selectedType, setSelectedType] = useState(crosshairTypes[0])
   const [selectedColor, setSelectedColor] = useState(crosshairColors[0])
@@ -54,18 +54,43 @@ export default function CreatePage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { data: session, isPending: sessionPending } = useSession()
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       const reader = new FileReader()
       reader.onloadend = () => {
-        const result = reader.result as string
-        setPreviewImage(result)
-        setImageData(result)
-        setImageName(file.name)
-        setImageType(file.type)
+        setPreviewImage(reader.result as string)
       }
       reader.readAsDataURL(file)
+      await uploadScreenshot(file)
+    }
+  }
+
+  const uploadScreenshot = async (file: File) => {
+    setUploading(true)
+    setUploadError(null)
+    setUploadedImage(null)
+    try {
+      const payload = new FormData()
+      payload.append("image", file)
+      const response = await fetch("/api/upload-image", {
+        method: "POST",
+        body: payload,
+      })
+      const data = (await response.json()) as { url?: string; key?: string; message?: string }
+      if (!response.ok || !data?.url || !data?.key) {
+        throw new Error(data?.message ?? "上传失败，请稍后重试")
+      }
+      setUploadedImage({ url: data.url, key: data.key })
+    } catch (error) {
+      setUploadError(error instanceof Error ? error.message : "上传失败，请稍后重试")
+      setPreviewImage(null)
+      setUploadedImage(null)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -76,9 +101,8 @@ export default function CreatePage() {
         fileInputRef.current.value = ""
       }
       setPreviewImage(null)
-      setImageData(null)
-      setImageName(null)
-      setImageType(null)
+      setUploadedImage(null)
+      setUploadError(null)
       setSelectedHero(heroes[0])
       setSelectedType(crosshairTypes[0])
       setSelectedColor(crosshairColors[0])
@@ -132,9 +156,8 @@ export default function CreatePage() {
               <input type="hidden" name="hero" value={selectedHero} />
               <input type="hidden" name="type" value={selectedType} />
               <input type="hidden" name="color" value={selectedColor} />
-              <input type="hidden" name="imageData" value={imageData ?? ""} />
-              <input type="hidden" name="imageName" value={imageName ?? ""} />
-              <input type="hidden" name="imageType" value={imageType ?? ""} />
+              <input type="hidden" name="imageUrl" value={uploadedImage?.url ?? ""} />
+              <input type="hidden" name="imageKey" value={uploadedImage?.key ?? ""} />
 
               <Card className="border-border bg-card/50">
                 <CardHeader>
@@ -201,9 +224,8 @@ export default function CreatePage() {
                         className="absolute right-2 top-2"
                         onClick={() => {
                           setPreviewImage(null)
-                          setImageData(null)
-                          setImageName(null)
-                          setImageType(null)
+                          setUploadedImage(null)
+                          setUploadError(null)
                           if (fileInputRef.current) {
                             fileInputRef.current.value = ""
                           }
@@ -230,9 +252,22 @@ export default function CreatePage() {
                         ref={fileInputRef}
                         className="hidden"
                         onChange={handleImageUpload}
+                        disabled={uploading}
                       />
                     </label>
                   )}
+                  <div className="mt-4 space-y-2 text-sm">
+                    {uploading ? (
+                      <p className="flex items-center gap-2 text-muted-foreground">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        正在上传，请稍候...
+                      </p>
+                    ) : null}
+                    {uploadedImage && !uploading && !uploadError ? (
+                      <p className="text-emerald-600">截图已上传，可以提交表单</p>
+                    ) : null}
+                    {uploadError ? <p className="text-destructive">{uploadError}</p> : null}
+                  </div>
                 </CardContent>
               </Card>
 
@@ -347,7 +382,7 @@ export default function CreatePage() {
               </Card>
 
               <div className="space-y-3">
-                <SubmitButton />
+                <SubmitButton disabled={uploading || !uploadedImage} />
                 <FormMessage state={state} />
               </div>
             </form>
@@ -359,11 +394,11 @@ export default function CreatePage() {
   )
 }
 
-function SubmitButton() {
+function SubmitButton({ disabled }: { disabled?: boolean }) {
   const { pending } = useFormStatus()
 
   return (
-    <Button type="submit" size="lg" className="w-full" disabled={pending}>
+    <Button type="submit" size="lg" className="w-full" disabled={pending || disabled}>
       {pending ? (
         <>
           <Upload className="mr-2 h-5 w-5 animate-spin" />

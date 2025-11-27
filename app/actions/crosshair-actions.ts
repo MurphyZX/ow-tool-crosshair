@@ -1,7 +1,5 @@
 "use server"
 
-import { Buffer } from "node:buffer"
-
 import { revalidatePath } from "next/cache"
 import { headers } from "next/headers"
 import { z } from "zod"
@@ -15,7 +13,7 @@ import {
   type CreateCrosshairState,
   type DeleteCrosshairState,
 } from "@/app/actions/crosshair-state"
-import { deleteCrosshairImage, uploadCrosshairImage } from "@/lib/storage/s3"
+import { deleteCrosshairImage } from "@/lib/storage/s3"
 
 export async function createCrosshairAction(
   prevState: CreateCrosshairState,
@@ -45,28 +43,11 @@ export async function createCrosshairAction(
       dotOpacity: formData.get("dotOpacity"),
     })
 
-    const image = formData.get("image")
-    const imageData = formData.get("imageData")
-    const imageName = formData.get("imageName")
-    const imageType = formData.get("imageType")
-    let uploadedImage:
-      | {
-          key: string
-          url: string
-        }
-      | undefined
+    const imageUrl = getString(formData.get("imageUrl"))
+    const imageKey = getString(formData.get("imageKey"))
 
-    if (image instanceof File && image.size > 0) {
-      uploadedImage = await uploadCrosshairImage(image, session.user.id)
-    } else if (typeof imageData === "string" && imageData.startsWith("data:") && imageData.includes("base64,")) {
-      const fallbackName =
-        typeof imageName === "string" && imageName.length ? imageName : `crosshair-${Date.now()}.png`
-      const fallbackType =
-        typeof imageType === "string" && imageType.length ? imageType : undefined
-      const reconstructed = createFileFromDataUrl(imageData, fallbackName, fallbackType)
-      if (reconstructed) {
-        uploadedImage = await uploadCrosshairImage(reconstructed, session.user.id)
-      }
+    if (!imageUrl || !imageKey) {
+      return { status: "error", message: "请先上传准星截图" }
     }
 
     await db.insert(crosshairs).values({
@@ -75,8 +56,8 @@ export async function createCrosshairAction(
       scale: 1,
       author: session.user.name ?? session.user.email,
       userId: session.user.id,
-      imageUrl: uploadedImage?.url ?? null,
-      imageKey: uploadedImage?.key ?? null,
+      imageUrl,
+      imageKey,
     })
 
     revalidatePath("/")
@@ -96,18 +77,8 @@ export async function createCrosshairAction(
   }
 }
 
-function createFileFromDataUrl(dataUrl: string, fileName: string, explicitType?: string) {
-  const matches = dataUrl.match(/^data:(.*?);base64,(.*)$/)
-
-  if (!matches) {
-    return null
-  }
-
-  const [, mime, base64Content] = matches
-  const buffer = Buffer.from(base64Content, "base64")
-  const type = explicitType || mime || "application/octet-stream"
-
-  return new File([buffer], fileName, { type })
+function getString(value: FormDataEntryValue | null) {
+  return typeof value === "string" && value.length ? value : null
 }
 
 export async function deleteCrosshairAction(
