@@ -32,6 +32,7 @@ export const crosshairs = pgTable(
     showAccuracy: boolean("show_accuracy").notNull().default(false),
     scale: integer("scale").notNull().default(1),
     imageUrl: text("image_url"),
+    imageKey: text("image_key"),
     likes: integer("likes").notNull().default(0),
     userId: text("user_id")
       .notNull()

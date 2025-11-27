@@ -72,6 +72,13 @@ export default async function DashboardPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3 text-sm">
+                    {crosshair.imageUrl ? (
+                      <img
+                        src={crosshair.imageUrl}
+                        alt={`${crosshair.name} 截图`}
+                        className="h-40 w-full rounded-lg object-cover"
+                      />
+                    ) : null}
                     {crosshair.description ? (
                       <p className="text-muted-foreground">{crosshair.description}</p>
                     ) : (

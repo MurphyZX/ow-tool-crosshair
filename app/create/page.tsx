@@ -43,11 +43,15 @@ const crosshairColors = ["白色", "绿色", "黄色", "青色", "粉色", "红�
 
 export default function CreatePage() {
   const [previewImage, setPreviewImage] = useState<string | null>(null)
+  const [imageData, setImageData] = useState<string | null>(null)
+  const [imageName, setImageName] = useState<string | null>(null)
+  const [imageType, setImageType] = useState<string | null>(null)
   const [selectedHero, setSelectedHero] = useState(heroes[0])
   const [selectedType, setSelectedType] = useState(crosshairTypes[0])
   const [selectedColor, setSelectedColor] = useState(crosshairColors[0])
   const [state, formAction] = useActionState(createCrosshairAction, createCrosshairInitialState)
   const formRef = useRef<HTMLFormElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const { data: session, isPending: sessionPending } = useSession()
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,7 +59,11 @@ export default function CreatePage() {
     if (file) {
       const reader = new FileReader()
       reader.onloadend = () => {
-        setPreviewImage(reader.result as string)
+        const result = reader.result as string
+        setPreviewImage(result)
+        setImageData(result)
+        setImageName(file.name)
+        setImageType(file.type)
       }
       reader.readAsDataURL(file)
     }
@@ -64,7 +72,13 @@ export default function CreatePage() {
   useEffect(() => {
     if (state.status === "success") {
       formRef.current?.reset()
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
       setPreviewImage(null)
+      setImageData(null)
+      setImageName(null)
+      setImageType(null)
       setSelectedHero(heroes[0])
       setSelectedType(crosshairTypes[0])
       setSelectedColor(crosshairColors[0])
@@ -118,6 +132,9 @@ export default function CreatePage() {
               <input type="hidden" name="hero" value={selectedHero} />
               <input type="hidden" name="type" value={selectedType} />
               <input type="hidden" name="color" value={selectedColor} />
+              <input type="hidden" name="imageData" value={imageData ?? ""} />
+              <input type="hidden" name="imageName" value={imageName ?? ""} />
+              <input type="hidden" name="imageType" value={imageType ?? ""} />
 
               <Card className="border-border bg-card/50">
                 <CardHeader>
@@ -167,7 +184,7 @@ export default function CreatePage() {
               <Card className="border-border bg-card/50">
                 <CardHeader>
                   <CardTitle>准星截图</CardTitle>
-                  <CardDescription>上传一张游戏内准星的截图，帮助其他玩家预览效果（即将支持持久化存储）</CardDescription>
+                  <CardDescription>上传一张游戏内准星截图，我们会存入 S3 供其他玩家快速预览</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {previewImage ? (
@@ -182,7 +199,15 @@ export default function CreatePage() {
                         variant="destructive"
                         size="icon"
                         className="absolute right-2 top-2"
-                        onClick={() => setPreviewImage(null)}
+                        onClick={() => {
+                          setPreviewImage(null)
+                          setImageData(null)
+                          setImageName(null)
+                          setImageType(null)
+                          if (fileInputRef.current) {
+                            fileInputRef.current.value = ""
+                          }
+                        }}
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -196,11 +221,13 @@ export default function CreatePage() {
                         <ImageIcon className="h-7 w-7 text-primary" />
                       </div>
                       <p className="mt-4 text-sm font-medium">点击或拖拽上传截图</p>
-                      <p className="mt-1 text-xs text-muted-foreground">此版本暂不保存图片，仅供预览</p>
+                      <p className="mt-1 text-xs text-muted-foreground">支持 PNG / JPG / WEBP，大小不超过 5MB</p>
                       <input
                         id="image-upload"
                         type="file"
                         accept="image/*"
+                        name="image"
+                        ref={fileInputRef}
                         className="hidden"
                         onChange={handleImageUpload}
                       />

@@ -41,10 +41,21 @@ export function CrosshairCard({ crosshair }: { crosshair: CrosshairListItem }) {
     setLikeCount(liked ? likeCount - 1 : likeCount + 1)
   }
 
+  const hasImage = Boolean(crosshair.imageUrl)
+
   return (
     <Card className="group overflow-hidden transition-all hover:border-primary/50">
-      <div className="relative aspect-video bg-secondary">
-        <CrosshairPreview settings={previewSettings} />
+      <div className="relative aspect-video overflow-hidden bg-secondary">
+        {hasImage ? (
+          <img
+            src={crosshair.imageUrl ?? "/placeholder.svg"}
+            alt={`${crosshair.name} 截图`}
+            className="h-full w-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <CrosshairPreview settings={previewSettings} />
+        )}
         <div className="absolute right-2 top-2">
           <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm">
             {crosshair.hero}
@@ -84,8 +95,16 @@ export function CrosshairCard({ crosshair }: { crosshair: CrosshairListItem }) {
                 <DialogTitle>{crosshair.name} - 准星设置</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <div className="aspect-video rounded-lg bg-secondary">
-                  <CrosshairPreview settings={previewSettings} />
+                <div className="aspect-video overflow-hidden rounded-lg bg-secondary">
+                  {hasImage ? (
+                    <img
+                      src={crosshair.imageUrl ?? "/placeholder.svg"}
+                      alt={`${crosshair.name} 截图`}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <CrosshairPreview settings={previewSettings} />
+                  )}
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <SettingItem label="类型" value={crosshair.type} />
