@@ -1,15 +1,16 @@
+import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { SignInForm } from "./sign-in-form"
-import Link from "next/link"
+import { SignUpForm } from "./sign-up-form"
 
-type SignInPageProps = {
-  searchParams?: Record<string, string | string[] | undefined>
+type SignUpPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }
 
-export default function SignInPage({ searchParams }: SignInPageProps) {
-  const redirectParam = typeof searchParams?.redirect === "string" ? searchParams?.redirect : undefined
+export default async function SignUpPage({ searchParams }: SignUpPageProps) {
+  const params = (await searchParams) ?? {}
+  const redirectParam = typeof params.redirect === "string" ? params.redirect : undefined
   const redirectTo = redirectParam?.startsWith("/") ? redirectParam : "/dashboard"
 
   return (
@@ -19,18 +20,18 @@ export default function SignInPage({ searchParams }: SignInPageProps) {
         <div className="w-full max-w-md">
           <Card className="border-border bg-card/60">
             <CardHeader className="space-y-2 text-center">
-              <CardTitle className="text-2xl font-semibold">登录 / Login</CardTitle>
-              <CardDescription>使用邮箱和密码登录，开始管理你的准星。</CardDescription>
+              <CardTitle className="text-2xl font-semibold">注册 / Sign Up</CardTitle>
+              <CardDescription>创建一个账号，保存并管理你分享的准星配置。</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <SignInForm redirectTo={redirectTo} />
+              <SignUpForm redirectTo={redirectTo} />
               <p className="text-center text-sm text-muted-foreground">
-                还没有账号？{" "}
+                已有账号？{" "}
                 <Link
-                  href={`/sign-up${redirectParam ? `?redirect=${encodeURIComponent(redirectParam)}` : ""}`}
+                  href={`/sign-in${redirectParam ? `?redirect=${encodeURIComponent(redirectParam)}` : ""}`}
                   className="text-primary underline-offset-4 hover:underline"
                 >
-                  立即注册
+                  去登录
                 </Link>
               </p>
             </CardContent>
