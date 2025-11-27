@@ -5,10 +5,17 @@ import { Crosshair, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { useSession, signOut } from "@/lib/auth-client"
+import { useRouter } from "next/navigation"
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const { data: session } = useSession()
+  const router = useRouter()
+
+  async function handleSignOut() {
+    await signOut()
+    router.push("/")
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
@@ -22,15 +29,6 @@ export function Header() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
-          <Link href="/#gallery" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-            准星库
-          </Link>
-          <Link href="/create" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-            分享准星
-          </Link>
-        </nav>
-
         <div className="hidden items-center gap-3 md:flex">
           {session ? (
             <>
@@ -41,7 +39,7 @@ export function Header() {
               <Button asChild>
                 <Link href="/create">分享准星</Link>
               </Button>
-              <Button variant="ghost" onClick={() => signOut()}>
+              <Button variant="ghost" onClick={handleSignOut}>
                 退出
               </Button>
             </>
@@ -67,12 +65,6 @@ export function Header() {
 
       {isOpen && (
         <nav className="flex flex-col gap-4 border-t border-border bg-background p-4 md:hidden">
-          <Link href="/#gallery" className="text-sm text-muted-foreground" onClick={() => setIsOpen(false)}>
-            准星库
-          </Link>
-          <Link href="/create" className="text-sm text-muted-foreground" onClick={() => setIsOpen(false)}>
-            分享准星
-          </Link>
           {session ? (
             <>
               <Link href="/dashboard" className="text-sm text-muted-foreground" onClick={() => setIsOpen(false)}>
@@ -84,9 +76,9 @@ export function Header() {
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => {
+                onClick={async () => {
                   setIsOpen(false)
-                  signOut()
+                  await handleSignOut()
                 }}
               >
                 退出登录

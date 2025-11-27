@@ -1,25 +1,37 @@
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 
+import { auth } from "@/lib/auth"
+
 const PROTECTED_PATHS = ["/create", "/dashboard", "/api/upload-image"]
+const AUTH_PAGES = ["/sign-in", "/sign-up"]
 const SESSION_COOKIE_KEYS = [
   "better-auth.session_token",
   "session_token",
   "better-auth.session_data",
 ]
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  const isProtected = PROTECTED_PATHS.some((path) =>
-    path.endsWith("*") ? pathname.startsWith(path.slice(0, -1)) : pathname === path || pathname.startsWith(`${path}/`),
-  )
+  const isProtected = matchesPath(pathname, PROTECTED_PATHS)
+  const isAuthPage = matchesPath(pathname, AUTH_PAGES)
 
-  if (!isProtected) {
+  if (!isProtected && !isAuthPage) {
     return NextResponse.next()
   }
 
-  if (hasSessionCookie(request)) {
+  const session = hasSessionCookie(request) ? await getSession(request) : null
+
+  if (isAuthPage) {
+    if (session) {
+      const redirectTarget = getRedirectParam(request) ?? "/dashboard"
+      return NextResponse.redirect(new URL(redirectTarget, request.url))
+    }
+    return NextResponse.next()
+  }
+
+  if (session) {
     return NextResponse.next()
   }
 
@@ -40,6 +52,31 @@ function hasSessionCookie(request: NextRequest) {
   })
 }
 
+function matchesPath(pathname: string, candidates: string[]) {
+  return candidates.some((path) =>
+    path.endsWith("*") ? pathname.startsWith(path.slice(0, -1)) : pathname === path || pathname.startsWith(`${path}/`),
+  )
+}
+
+function getRedirectParam(request: NextRequest) {
+  const param = request.nextUrl.searchParams.get("redirect")
+  if (typeof param === "string" && param.startsWith("/")) {
+    return param
+  }
+  return null
+}
+
+async function getSession(request: NextRequest) {
+  try {
+    return await auth.api.getSession({
+      headers: request.headers,
+    })
+  } catch (error) {
+    console.error("Failed to verify session in proxy", error)
+    return null
+  }
+}
+
 export const config = {
-  matcher: ["/create/:path*", "/dashboard/:path*", "/api/upload-image"],
+  matcher: ["/create/:path*", "/dashboard/:path*", "/api/upload-image", "/sign-in", "/sign-up"],
 }

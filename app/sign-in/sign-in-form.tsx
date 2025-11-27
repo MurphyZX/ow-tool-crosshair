@@ -1,85 +1,94 @@
 "use client"
 
-import { FormEvent, useState } from "react"
+import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react"
 import { signIn } from "@/lib/auth-client"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
 
 type SignInFormProps = {
   redirectTo: string
 }
 
+const signInSchema = z.object({
+  email: z.string().email("请输入有效的邮箱地址"),
+  password: z.string().min(8, "密码至少 8 位"),
+})
+
+type SignInValues = z.infer<typeof signInSchema>
+
 export function SignInForm({ redirectTo }: SignInFormProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const {
+    register,
+    handleSubmit,
+    setError,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<SignInValues>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  })
 
   const redirectParam = searchParams?.get("redirect")
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    setError(null)
-    setIsSubmitting(true)
-
+  const onSubmit = handleSubmit(async (values) => {
     try {
       await signIn.email(
         {
-          email,
-          password,
+          ...values,
           rememberMe: true,
           callbackURL: redirectTo,
         },
         {
           onError: (ctx) => {
-            setError(ctx.error?.message ?? ctx.error ?? "登录失败，请重试")
+            setError("root", { message: ctx.error?.message ?? ctx.error ?? "登录失败，请重试" })
           },
           onSuccess: () => {
+            reset()
             router.push(redirectTo || "/dashboard")
           },
         },
       )
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "登录失败，请重试")
-    } finally {
-      setIsSubmitting(false)
+    } catch (error) {
+      setError("root", { message: error instanceof Error ? error.message : "登录失败，请重试" })
     }
-  }
+  })
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-4" noValidate>
       <div className="space-y-2">
         <Label htmlFor="email">邮箱</Label>
         <Input
           id="email"
-          name="email"
           type="email"
           autoComplete="email"
           placeholder="you@example.com"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          required
+          aria-invalid={Boolean(errors.email)}
+          {...register("email")}
         />
+        {errors.email ? <p className="text-sm text-destructive">{errors.email.message}</p> : null}
       </div>
       <div className="space-y-2">
         <Label htmlFor="password">密码</Label>
         <div className="flex items-center gap-2">
           <Input
             id="password"
-            name="password"
             type={showPassword ? "text" : "password"}
             autoComplete="current-password"
             placeholder="至少 8 位"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            minLength={8}
+            aria-invalid={Boolean(errors.password)}
+            {...register("password")}
           />
           <Button
             type="button"
@@ -91,12 +100,13 @@ export function SignInForm({ redirectTo }: SignInFormProps) {
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </Button>
         </div>
+        {errors.password ? <p className="text-sm text-destructive">{errors.password.message}</p> : null}
       </div>
 
-      {error ? (
+      {errors.root?.message ? (
         <div className="flex items-center gap-2 rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">
           <AlertCircle className="h-4 w-4" />
-          <span>{error}</span>
+          <span>{errors.root.message}</span>
         </div>
       ) : null}
 
