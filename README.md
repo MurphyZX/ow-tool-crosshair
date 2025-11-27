@@ -26,6 +26,12 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 2. Apply the schema to Supabase with `npm run db:push`.
 3. Optional: inspect or edit the data locally with `npm run db:studio`.
 
+## Authentication (Better Auth)
+
+1. In `.env.local`, set `BETTER_AUTH_SECRET` to a long random string (see `env.example` for a template).
+2. Run `pnpm db:push` after pulling new changes to ensure the Better Auth tables exist in your Supabase database.
+3. Use `/sign-up` to create an account and `/sign-in` to authenticate. Once signed in you can publish new crosshairs at `/create` and manage your own list from `/dashboard`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

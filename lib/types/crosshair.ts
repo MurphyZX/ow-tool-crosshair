@@ -20,5 +20,6 @@ export type CrosshairListItem = Pick<
   | "showAccuracy"
   | "likes"
   | "imageUrl"
+  | "userId"
   | "createdAt"
 >

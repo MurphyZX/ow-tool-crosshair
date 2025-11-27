@@ -21,7 +21,6 @@ const numberField = (min: number, max: number) =>
 
 export const crosshairFormSchema = z.object({
   name: z.string().min(2).max(120),
-  author: z.string().min(2).max(120),
   hero: z.string().min(1).max(60),
   description: z
     .string()

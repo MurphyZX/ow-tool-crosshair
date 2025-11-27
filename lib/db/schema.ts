@@ -10,6 +10,8 @@ import {
   varchar,
 } from "drizzle-orm/pg-core"
 
+import { user } from "./auth-schema"
+
 export const crosshairs = pgTable(
   "crosshairs",
   {
@@ -31,14 +33,20 @@ export const crosshairs = pgTable(
     scale: integer("scale").notNull().default(1),
     imageUrl: text("image_url"),
     likes: integer("likes").notNull().default(0),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => ({
     heroIdx: index("crosshair_hero_idx").on(table.hero),
     typeIdx: index("crosshair_type_idx").on(table.type),
+    userIdx: index("crosshair_user_idx").on(table.userId),
   }),
 )
 
 export type Crosshair = InferSelectModel<typeof crosshairs>
 export type NewCrosshair = InferInsertModel<typeof crosshairs>
+
+export * from "./auth-schema"
