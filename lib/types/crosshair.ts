@@ -1,0 +1,24 @@
+import type { Crosshair } from "@/lib/db/schema"
+
+export type CrosshairListItem = Pick<
+  Crosshair,
+  | "id"
+  | "name"
+  | "author"
+  | "hero"
+  | "description"
+  | "type"
+  | "color"
+  | "thickness"
+  | "crosshairLength"
+  | "centerGap"
+  | "opacity"
+  | "outlineOpacity"
+  | "dotSize"
+  | "dotOpacity"
+  | "scale"
+  | "showAccuracy"
+  | "likes"
+  | "imageUrl"
+  | "createdAt"
+>

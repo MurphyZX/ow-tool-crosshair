@@ -1,39 +1,40 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Heart, Eye } from "lucide-react"
 import { CrosshairPreview } from "./crosshair-preview"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import type { CrosshairListItem } from "@/lib/types/crosshair"
 
-interface CrosshairSettings {
-  type: string
-  showAccuracy: boolean
-  color: string
-  thickness: number
-  crosshairLength: number
-  centerGap: number
-  opacity: number
-  outlineOpacity: number
-  dotSize: number
-  dotOpacity: number
-  scale: number
+const colorMap: Record<string, string> = {
+  白色: "#FFFFFF",
+  绿色: "#7CFC00",
+  黄色: "#FFD700",
+  青色: "#00FFFF",
+  粉色: "#FF69B4",
+  红色: "#FF4500",
+  蓝色: "#1E90FF",
+  橙色: "#FF8C00",
 }
 
-interface Crosshair {
-  id: number
-  name: string
-  author: string
-  hero: string
-  likes: number
-  settings: CrosshairSettings
-}
-
-export function CrosshairCard({ crosshair }: { crosshair: Crosshair }) {
+export function CrosshairCard({ crosshair }: { crosshair: CrosshairListItem }) {
   const [liked, setLiked] = useState(false)
-  const [likeCount, setLikeCount] = useState(crosshair.likes)
+  const [likeCount, setLikeCount] = useState(crosshair.likes ?? 0)
+
+  const previewSettings = useMemo(
+    () => ({
+      type: mapTypeToPreview(crosshair.type),
+      color: colorMap[crosshair.color] ?? crosshair.color ?? "#00FF00",
+      size: Math.max(crosshair.crosshairLength, 2),
+      gap: Math.max(crosshair.centerGap, 0),
+      outline: (crosshair.outlineOpacity ?? 0) > 0,
+      dot: (crosshair.dotSize ?? 0) > 0,
+    }),
+    [crosshair],
+  )
 
   const handleLike = () => {
     setLiked(!liked)
@@ -43,7 +44,7 @@ export function CrosshairCard({ crosshair }: { crosshair: Crosshair }) {
   return (
     <Card className="group overflow-hidden transition-all hover:border-primary/50">
       <div className="relative aspect-video bg-secondary">
-        <CrosshairPreview settings={crosshair.settings} />
+        <CrosshairPreview settings={previewSettings} />
         <div className="absolute right-2 top-2">
           <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm">
             {crosshair.hero}
@@ -84,20 +85,20 @@ export function CrosshairCard({ crosshair }: { crosshair: Crosshair }) {
               </DialogHeader>
               <div className="space-y-4">
                 <div className="aspect-video rounded-lg bg-secondary">
-                  <CrosshairPreview settings={crosshair.settings} />
+                  <CrosshairPreview settings={previewSettings} />
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <SettingItem label="类型" value={crosshair.settings.type} />
-                  <SettingItem label="显示精准度" value={crosshair.settings.showAccuracy ? "开" : "关"} />
-                  <SettingItem label="颜色" value={crosshair.settings.color} />
-                  <SettingItem label="粗细" value={crosshair.settings.thickness} />
-                  <SettingItem label="准星长度" value={crosshair.settings.crosshairLength} />
-                  <SettingItem label="中心间隙" value={crosshair.settings.centerGap} />
-                  <SettingItem label="不透明度" value={crosshair.settings.opacity} />
-                  <SettingItem label="轮廓不透明度" value={crosshair.settings.outlineOpacity} />
-                  <SettingItem label="圆点大小" value={crosshair.settings.dotSize} />
-                  <SettingItem label="圆点不透明度" value={crosshair.settings.dotOpacity} />
-                  <SettingItem label="缩放" value={`${crosshair.settings.scale}x`} />
+                  <SettingItem label="类型" value={crosshair.type} />
+                  <SettingItem label="显示精准度" value={crosshair.showAccuracy ? "开" : "关"} />
+                  <SettingItem label="颜色" value={crosshair.color} />
+                  <SettingItem label="粗细" value={crosshair.thickness} />
+                  <SettingItem label="准星长度" value={crosshair.crosshairLength} />
+                  <SettingItem label="中心间隙" value={crosshair.centerGap} />
+                  <SettingItem label="不透明度" value={crosshair.opacity} />
+                  <SettingItem label="轮廓不透明度" value={crosshair.outlineOpacity} />
+                  <SettingItem label="圆点大小" value={crosshair.dotSize} />
+                  <SettingItem label="圆点不透明度" value={crosshair.dotOpacity} />
+                  <SettingItem label="缩放" value={`${crosshair.scale}x`} />
                 </div>
                 <p className="text-xs text-muted-foreground">在游戏中进入 设置 → 控制 → 准星 来应用这些设置</p>
               </div>
@@ -116,4 +117,11 @@ function SettingItem({ label, value }: { label: string; value: string | number }
       <span className="font-medium">{value}</span>
     </div>
   )
+}
+
+function mapTypeToPreview(type?: string | null) {
+  const value = type ?? ""
+  if (value.includes("圆点")) return "dot"
+  if (value.includes("圆形")) return "circle"
+  return "crosshair"
 }
