@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { Header } from "@/components/header"
@@ -73,11 +74,15 @@ export default async function DashboardPage() {
                   </CardHeader>
                   <CardContent className="space-y-3 text-sm">
                     {crosshair.imageUrl ? (
-                      <img
-                        src={crosshair.imageUrl}
-                        alt={`${crosshair.name} 截图`}
-                        className="h-40 w-full rounded-lg object-cover"
-                      />
+                      <div className="relative h-40 w-full overflow-hidden rounded-lg">
+                        <Image
+                          src={crosshair.imageUrl}
+                          alt={`${crosshair.name} 截图`}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                        />
+                      </div>
                     ) : null}
                     {crosshair.description ? (
                       <p className="text-muted-foreground">{crosshair.description}</p>

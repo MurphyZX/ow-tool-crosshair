@@ -3,6 +3,7 @@
 import type React from "react"
 
 import Link from "next/link"
+import Image from "next/image"
 import { useActionState, useEffect, useRef, useState } from "react"
 import { useFormStatus } from "react-dom"
 import { Header } from "@/components/header"
@@ -212,10 +213,14 @@ export default function CreatePage() {
                 <CardContent>
                   {previewImage ? (
                     <div className="relative">
-                      <img
+                      <Image
                         src={previewImage || "/placeholder.svg"}
                         alt="准星预览"
+                        width={1200}
+                        height={675}
                         className="w-full rounded-lg border border-border object-cover"
+                        sizes="100vw"
+                        unoptimized
                       />
                       <Button
                         type="button"
