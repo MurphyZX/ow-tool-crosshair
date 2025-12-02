@@ -64,7 +64,7 @@ export default async function CrosshairDetailPage({ params }: { params: Promise<
           </Button>
           <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
             <div className="space-y-6">
-              <div className="relative overflow-hidden rounded-2xl border border-border bg-secondary shadow-sm">
+              <div className="relative aspect-video overflow-hidden rounded-2xl border border-border bg-secondary shadow-sm">
                 {crosshair.imageUrl ? (
                   <Image
                     src={crosshair.imageUrl}

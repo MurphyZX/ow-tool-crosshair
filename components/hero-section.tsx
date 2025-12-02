@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 import { Crosshair, Copy, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -23,9 +25,11 @@ export function HeroSection() {
           </p>
 
           <div className="flex flex-col gap-4 sm:flex-row">
-            <Button size="lg" className="gap-2">
-              <Copy className="h-4 w-4" />
-              浏览准星
+            <Button asChild size="lg" className="gap-2">
+              <Link href="#gallery">
+                <Copy className="h-4 w-4" />
+                浏览准星
+              </Link>
             </Button>
             <Button size="lg" variant="outline" className="gap-2 bg-transparent">
               <Users className="h-4 w-4" />
