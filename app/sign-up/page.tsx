@@ -1,6 +1,8 @@
 import Link from "next/link"
+
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { AuthCardShell } from "@/components/auth-card-shell"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { SignUpForm } from "./sign-up-form"
 
@@ -17,8 +19,8 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
     <div className="flex min-h-screen flex-col bg-background">
       <Header />
       <main className="flex flex-1 items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md">
-          <Card className="border-border bg-card/60">
+        <AuthCardShell>
+          <Card className="relative z-[1] rounded-[inherit] border-border/60 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/70">
             <CardHeader className="space-y-2 text-center">
               <CardTitle className="text-2xl font-semibold">注册 / Sign Up</CardTitle>
               <CardDescription>创建一个账号，保存并管理你分享的准星配置。</CardDescription>
@@ -36,7 +38,7 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
               </p>
             </CardContent>
           </Card>
-        </div>
+        </AuthCardShell>
       </main>
       <Footer />
     </div>
