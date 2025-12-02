@@ -4,9 +4,24 @@ import { Crosshair, Copy, Users } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { FlickeringGrid } from "@/components/ui/flickering-grid"
+import { Highlighter } from "@/components/ui/highlighter"
 import { SparklesText } from "@/components/ui/sparkles-text"
 
 export function HeroSection() {
+  const highlightPropsUnderline = {
+    action: "underline" as const,
+    color: "#FF9800",
+    strokeWidth: 2,
+    padding: 6,
+  }
+
+  const highlightPropsHighlight = {
+    action: "highlight" as const,
+    color: "#87CEFA",
+    strokeWidth: 2,
+    padding: 6,
+  }
+
   return (
     <section className="relative overflow-hidden border-b border-border py-20 md:py-32">
       <div className="pointer-events-none absolute inset-0">
@@ -37,7 +52,14 @@ export function HeroSection() {
           </SparklesText>
 
           <p className="mb-10 max-w-2xl text-pretty text-lg text-muted-foreground md:text-xl">
-            浏览职业选手和社区分享的准星设置，一键复制游戏代码，或创建属于你自己的准星配置
+            浏览
+            <Highlighter {...highlightPropsUnderline}>职业选手</Highlighter>
+            和
+            <Highlighter {...highlightPropsUnderline}>社区分享</Highlighter>
+            的准星设置，一键复制游戏代码，或
+            <Highlighter {...highlightPropsHighlight}>创建</Highlighter>
+            属于你自己的
+            <Highlighter {...highlightPropsHighlight}>准星配置</Highlighter>
           </p>
 
           <div className="flex flex-col gap-4 sm:flex-row">
