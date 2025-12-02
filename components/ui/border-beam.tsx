@@ -1,8 +1,6 @@
 "use client"
 
-import type { CSSProperties } from "react"
-
-import { motion, type MotionStyle, type Transition } from "motion/react"
+import { motion, MotionStyle, Transition } from "motion/react"
 
 import { cn } from "@/lib/utils"
 
@@ -38,7 +36,7 @@ interface BorderBeamProps {
   /**
    * The style of the border beam.
    */
-  style?: CSSProperties
+  style?: React.CSSProperties
   /**
    * Whether to reverse the animation direction.
    */
@@ -72,7 +70,7 @@ export const BorderBeam = ({
       style={
         {
           "--border-beam-width": `${borderWidth}px`,
-        } as CSSProperties
+        } as React.CSSProperties
       }
     >
       <motion.div

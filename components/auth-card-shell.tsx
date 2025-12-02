@@ -2,7 +2,6 @@
 
 import { type PropsWithChildren } from "react"
 
-import { BorderBeam } from "@/components/ui/border-beam"
 import { cn } from "@/lib/utils"
 
 type AuthCardShellProps = PropsWithChildren<{
@@ -18,15 +17,6 @@ export function AuthCardShell({ children, className }: AuthCardShellProps) {
       )}
     >
       {children}
-      <BorderBeam
-        size={360}
-        duration={8}
-        initialOffset={32}
-        borderWidth={2}
-        className="opacity-80 blur-[1px]"
-        colorFrom="rgba(56,189,248,0.9)"
-        colorTo="rgba(244,114,182,0.85)"
-      />
     </div>
   )
 }
