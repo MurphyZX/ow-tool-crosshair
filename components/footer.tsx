@@ -1,5 +1,6 @@
+import Image from "next/image"
 import Link from "next/link"
-import { Crosshair, Github, Twitter } from "lucide-react"
+import { Github, Twitter } from "lucide-react"
 
 export function Footer() {
   return (
@@ -8,9 +9,7 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-4">
           <div className="md:col-span-2">
             <Link href="/" className="mb-4 flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-                <Crosshair className="h-6 w-6 text-primary-foreground" />
-              </div>
+              <Image src="/ow.svg" alt="OW logo" width={40} height={40} className="h-10 w-10" />
               <span className="text-xl font-bold">
                 OW<span className="text-primary">准星</span>
               </span>

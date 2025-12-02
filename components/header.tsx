@@ -1,7 +1,8 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
-import { Crosshair, Menu, X } from "lucide-react"
+import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { useSession, signOut } from "@/lib/auth-client"
@@ -21,9 +22,14 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-            <Crosshair className="h-6 w-6 text-primary-foreground" />
-          </div>
+          <Image
+            src="/ow.svg"
+            alt="OW logo"
+            width={40}
+            height={40}
+            className="h-10 w-10"
+            priority
+          />
           <span className="text-xl font-bold tracking-tight">
             OW<span className="text-primary">准星</span>
           </span>
