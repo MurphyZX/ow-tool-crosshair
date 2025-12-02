@@ -4,6 +4,7 @@ import { Crosshair, Copy, Users } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { FlickeringGrid } from "@/components/ui/flickering-grid"
+import { SparklesText } from "@/components/ui/sparkles-text"
 
 export function HeroSection() {
   return (
@@ -23,15 +24,17 @@ export function HeroSection() {
 
       <div className="relative mx-auto max-w-7xl px-4">
         <div className="flex flex-col items-center text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-primary">
-            <Crosshair className="h-4 w-4" />
-            守望先锋准星分享平台
-          </div>
 
-          <h1 className="mb-6 max-w-4xl text-balance text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl">
-            找到你的
-            <span className="text-primary">完美准星</span>
-          </h1>
+          <h1 className="sr-only">找到你的完美准星</h1>
+          <SparklesText
+            aria-hidden
+            className="mb-6 max-w-4xl text-balance text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl"
+          >
+            找到你的{" "}
+            <span className="text-primary">
+              完美准星
+            </span>
+          </SparklesText>
 
           <p className="mb-10 max-w-2xl text-pretty text-lg text-muted-foreground md:text-xl">
             浏览职业选手和社区分享的准星设置，一键复制游戏代码，或创建属于你自己的准星配置
