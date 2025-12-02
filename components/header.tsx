@@ -31,7 +31,7 @@ export function Header() {
             priority
           />
           <span className="text-xl font-bold tracking-tight">
-            OW<span className="text-primary">准星</span>
+            守望先锋完美准星
           </span>
         </Link>
 

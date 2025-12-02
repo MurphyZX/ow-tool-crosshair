@@ -56,7 +56,8 @@ export function HeroSection() {
             <Highlighter {...highlightPropsUnderline}>职业选手</Highlighter>
             和
             <Highlighter {...highlightPropsUnderline}>社区分享</Highlighter>
-            的准星设置，一键复制游戏代码，或
+            的准星设置，
+            {/* 一键复制准星代码功能暂不可用，待官方支持后恢复展示 */}
             <Highlighter {...highlightPropsHighlight}>创建</Highlighter>
             属于你自己的
             <Highlighter {...highlightPropsHighlight}>准星配置</Highlighter>

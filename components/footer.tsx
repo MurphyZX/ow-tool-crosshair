@@ -11,7 +11,7 @@ export function Footer() {
             <Link href="/" className="mb-4 flex items-center gap-2">
               <Image src="/ow.svg" alt="OW logo" width={40} height={40} className="h-10 w-10" />
               <span className="text-xl font-bold">
-                OW<span className="text-primary">准星</span>
+                守望先锋完美准星
               </span>
             </Link>
             <p className="mb-4 max-w-sm text-sm text-muted-foreground">
@@ -76,7 +76,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 border-t border-border pt-8 text-center text-sm text-muted-foreground">
-          <p>© 2025 OW准星. 本站与暴雪娱乐无关联。</p>
+          <p>© 2025 overwatch完美准星. 本站与暴雪娱乐无关联。</p>
         </div>
       </div>
     </footer>

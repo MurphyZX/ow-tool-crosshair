@@ -126,7 +126,8 @@ export default async function CrosshairDetailPage({ params }: { params: Promise<
               <section className="rounded-2xl border border-border bg-card/60 p-6">
                 <h2 className="mb-4 text-lg font-semibold">打算尝试？</h2>
                 <p className="text-sm text-muted-foreground">
-                  打开守望先锋 → 设置 → 控制 → 准星，将上述参数逐项输入即可完成配置。稍后会提供一键复制准星代码功能。
+                  打开守望先锋 → 设置 → 控制 → 准星，将上述参数逐项输入即可完成配置。
+                  {/* 一键复制准星代码功能暂不可用，待游戏更新后再恢复文案 */}
                 </p>
                 <div className="mt-4 flex flex-wrap gap-3">
                   <Button asChild>
