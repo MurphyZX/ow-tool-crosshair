@@ -46,9 +46,20 @@ export async function proxy(request: NextRequest) {
 }
 
 function hasSessionCookie(request: NextRequest) {
+  const cookieStore = request.cookies
+  const allCookies = cookieStore.getAll()
+
   return SESSION_COOKIE_KEYS.some((key) => {
-    const cookie = request.cookies.get(key)
-    return cookie?.value?.length
+    const variants = [key, `__Secure-${key}`]
+
+    return variants.some((name) => {
+      const direct = cookieStore.get(name)
+      if (direct?.value?.length) {
+        return true
+      }
+      // better-auth 会在 HTTPS 环境下对 session_data 做分片，并为 cookie 名添加 __Secure- 前缀
+      return allCookies.some((cookie) => cookie.name.startsWith(`${name}.`) && cookie.value.length)
+    })
   })
 }
 
