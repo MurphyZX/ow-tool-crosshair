@@ -33,7 +33,7 @@ export function HeroSection() {
           gridGap={5}
           flickerChance={0.18}
           color="#6B7280"
-          maxOpacity={0.3}
+          maxOpacity={0.25}
         />
       </div>
 
