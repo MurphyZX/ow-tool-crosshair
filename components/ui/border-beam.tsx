@@ -1,25 +1,59 @@
 "use client"
 
-import * as React from "react"
-import { motion, MotionStyle, Transition } from "motion/react"
+import type { CSSProperties } from "react"
+
+import { motion, type MotionStyle, type Transition } from "motion/react"
 
 import { cn } from "@/lib/utils"
 
-export type BorderBeamProps = {
+interface BorderBeamProps {
+  /**
+   * The size of the border beam.
+   */
   size?: number
+  /**
+   * The duration of the border beam.
+   */
   duration?: number
+  /**
+   * The delay of the border beam.
+   */
   delay?: number
+  /**
+   * The color of the border beam from.
+   */
   colorFrom?: string
+  /**
+   * The color of the border beam to.
+   */
   colorTo?: string
+  /**
+   * The motion transition of the border beam.
+   */
   transition?: Transition
+  /**
+   * The class name of the border beam.
+   */
   className?: string
-  style?: React.CSSProperties
+  /**
+   * The style of the border beam.
+   */
+  style?: CSSProperties
+  /**
+   * Whether to reverse the animation direction.
+   */
   reverse?: boolean
+  /**
+   * The initial offset position (0-100).
+   */
   initialOffset?: number
+  /**
+   * The border width of the beam.
+   */
   borderWidth?: number
 }
 
-export function BorderBeam({
+export const BorderBeam = ({
   className,
   size = 50,
   delay = 0,
@@ -31,19 +65,20 @@ export function BorderBeam({
   reverse = false,
   initialOffset = 0,
   borderWidth = 1,
-}: BorderBeamProps) {
+}: BorderBeamProps) => {
   return (
     <div
       className="pointer-events-none absolute inset-0 rounded-[inherit] border-(length:--border-beam-width) border-transparent [mask-image:linear-gradient(transparent,transparent),linear-gradient(#000,#000)] [mask-composite:intersect] [mask-clip:padding-box,border-box]"
       style={
         {
           "--border-beam-width": `${borderWidth}px`,
-        } as React.CSSProperties
+        } as CSSProperties
       }
     >
       <motion.div
         className={cn(
-          "absolute aspect-square bg-gradient-to-l from-[var(--color-from)] via-[var(--color-to)] to-transparent",
+          "absolute aspect-square",
+          "bg-gradient-to-l from-[var(--color-from)] via-[var(--color-to)] to-transparent",
           className
         )}
         style={
@@ -72,4 +107,3 @@ export function BorderBeam({
     </div>
   )
 }
-

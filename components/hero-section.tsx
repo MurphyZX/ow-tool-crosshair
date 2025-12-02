@@ -1,12 +1,25 @@
 import Link from "next/link"
 
 import { Crosshair, Copy, Users } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
+import { FlickeringGrid } from "@/components/ui/flickering-grid"
 
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden border-b border-border py-20 md:py-32">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/15 via-transparent to-transparent" />
+        <FlickeringGrid
+          aria-hidden
+          className="absolute inset-0 h-full w-full opacity-70"
+          squareSize={3}
+          gridGap={5}
+          flickerChance={0.18}
+          color="#6B7280"
+          maxOpacity={0.3}
+        />
+      </div>
 
       <div className="relative mx-auto max-w-7xl px-4">
         <div className="flex flex-col items-center text-center">
