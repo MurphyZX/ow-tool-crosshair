@@ -48,7 +48,7 @@ export function wechatOAuth(options: WeChatOAuthOptions): BetterAuthPlugin {
             .optional() as any,
         },
         async (ctx) => {
-          const { state } = await generateState(ctx)
+          const { state } = await generateState(ctx, undefined, undefined)
 
           const redirectUri = `${ctx.context.baseURL}/oauth2/callback/wechat`
           const url = new URL(AUTH_URL)
@@ -172,6 +172,7 @@ export function wechatOAuth(options: WeChatOAuthOptions): BetterAuthPlugin {
 
           const accountId = profile.unionid || profile.openid || tokenResponse.openid
           const email = `${accountId}@${syntheticEmailDomain}`.toLowerCase()
+          const displayName = profile.nickname ?? accountId
 
           if (debug) {
             ctx.context.logger?.debug("wechat.callback.profile", {
@@ -227,7 +228,7 @@ export function wechatOAuth(options: WeChatOAuthOptions): BetterAuthPlugin {
                 {
                   email,
                   emailVerified: true,
-                  name: profile.nickname,
+                  name: displayName,
                   image: profile.headimgurl,
                 },
                 {
@@ -261,7 +262,7 @@ export function wechatOAuth(options: WeChatOAuthOptions): BetterAuthPlugin {
             throw ctx.redirect(`${errorURL || callbackURL || ctx.context.baseURL}/error?error=user_not_found`)
           }
 
-          const session = await ctx.context.internalAdapter.createSession(user.id, ctx)
+          const session = await ctx.context.internalAdapter.createSession(user.id)
           if (!session) {
             throw ctx.redirect(`${errorURL || callbackURL || ctx.context.baseURL}/error?error=unable_to_create_session`)
           }

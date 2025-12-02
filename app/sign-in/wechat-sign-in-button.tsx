@@ -10,6 +10,11 @@ type WeChatSignInButtonProps = {
   redirectTo: string
 }
 
+type WeChatSignInResponse = {
+  url: string
+  redirect?: boolean
+}
+
 export function WeChatSignInButton({ redirectTo }: WeChatSignInButtonProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -18,7 +23,7 @@ export function WeChatSignInButton({ redirectTo }: WeChatSignInButtonProps) {
     setLoading(true)
     setError(null)
     try {
-      const response = await authClient.$fetch("/sign-in/wechat", {
+      const response = await authClient.$fetch<WeChatSignInResponse>("/sign-in/wechat", {
         method: "POST",
         body: {
           callbackURL: redirectTo,
@@ -28,11 +33,11 @@ export function WeChatSignInButton({ redirectTo }: WeChatSignInButtonProps) {
         },
       })
 
-      const url = response?.data?.url
-      if (!url) {
-        throw new Error("微信授权地址获取失败")
+      if (response.error || !response.data?.url) {
+        throw new Error(response.error?.message ?? "微信授权地址获取失败")
       }
-      window.location.href = url
+
+      window.location.href = response.data.url
     } catch (err) {
       setError(err instanceof Error ? err.message : "跳转到微信失败，请稍后重试")
     } finally {
@@ -64,4 +69,3 @@ export function WeChatSignInButton({ redirectTo }: WeChatSignInButtonProps) {
     </div>
   )
 }
-

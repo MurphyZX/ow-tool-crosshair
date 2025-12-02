@@ -9,6 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { CrosshairListItem } from "@/lib/types/crosshair"
 
 const heroes = ["全部", "通用", "源氏", "黑百合", "末日铁拳", "艾什", "猎空", "回声", "士兵76", "卡西迪"]
+type SortOption = "popular" | "name"
+
+const isSortOption = (value: string): value is SortOption => value === "popular" || value === "name"
 
 interface CrosshairGalleryProps {
   crosshairs: CrosshairListItem[]
@@ -17,7 +20,12 @@ interface CrosshairGalleryProps {
 export function CrosshairGallery({ crosshairs }: CrosshairGalleryProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedHero, setSelectedHero] = useState("全部")
-  const [sortBy, setSortBy] = useState<"popular" | "name">("popular")
+  const [sortBy, setSortBy] = useState<SortOption>("popular")
+  const handleSortChange = (value: string) => {
+    if (isSortOption(value)) {
+      setSortBy(value)
+    }
+  }
 
   const filteredCrosshairs = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase()
@@ -73,7 +81,7 @@ export function CrosshairGallery({ crosshairs }: CrosshairGalleryProps) {
               </SelectContent>
             </Select>
 
-            <Select value={sortBy} onValueChange={setSortBy}>
+            <Select value={sortBy} onValueChange={handleSortChange}>
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
