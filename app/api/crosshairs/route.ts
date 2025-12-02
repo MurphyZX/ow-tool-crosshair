@@ -46,17 +46,18 @@ export async function GET(request: NextRequest) {
 
     if (searchQuery) {
       const likeQuery = wrapLike(searchQuery)
-      filters.push(or(ilike(crosshairs.name, likeQuery), ilike(crosshairs.author, likeQuery)))
+      const searchCondition = or(ilike(crosshairs.name, likeQuery), ilike(crosshairs.author, likeQuery))
+      if (searchCondition) {
+        filters.push(searchCondition)
+      }
     }
 
     const whereClause = filters.length ? and(...filters) : undefined
 
-    let query = db.select(crosshairSelection).from(crosshairs)
-    if (whereClause) {
-      query = query.where(whereClause)
-    }
+    const baseQuery = db.select(crosshairSelection).from(crosshairs)
+    const filteredQuery = whereClause ? baseQuery.where(whereClause) : baseQuery
 
-    const rows = await query
+    const rows = await filteredQuery
       .orderBy(...getOrderBy(sortBy))
       .limit(limit + 1)
       .offset(offset)
