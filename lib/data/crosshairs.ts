@@ -5,7 +5,7 @@ import { db } from "@/lib/db"
 import { crosshairs } from "@/lib/db/schema"
 import type { CrosshairListItem } from "@/lib/types/crosshair"
 
-const crosshairSelection = {
+export const crosshairSelection = {
   id: crosshairs.id,
   name: crosshairs.name,
   author: crosshairs.author,
