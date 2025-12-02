@@ -18,26 +18,10 @@ import { Upload, X, ImageIcon, Check, AlertCircle, LogIn, Loader2 } from "lucide
 import { createCrosshairAction } from "@/app/actions/crosshair-actions"
 import { createCrosshairInitialState, type CreateCrosshairState } from "@/app/actions/crosshair-state"
 import { cn } from "@/lib/utils"
+import { HERO_NAME_LIST } from "@/lib/constants/heroes"
 import { useSession } from "@/lib/auth-client"
 
-const heroes = [
-  "通用",
-  "源氏",
-  "黑百合",
-  "末日铁拳",
-  "艾什",
-  "猎空",
-  "回声",
-  "士兵76",
-  "卡西迪",
-  "法老之鹰",
-  "半藏",
-  "索杰恩",
-  "狂鼠",
-  "托比昂",
-  "死神",
-  "秩序之光",
-]
+const heroNames = HERO_NAME_LIST
 
 const crosshairTypes = ["十字线", "圆点", "圆形", "十字线 + 圆点"]
 const crosshairColors = ["白色", "绿色", "黄色", "青色", "粉色", "红色", "蓝色", "橙色"]
@@ -47,7 +31,7 @@ export default function CreatePage() {
   const [uploadedImage, setUploadedImage] = useState<{ url: string; key: string } | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
-  const [selectedHero, setSelectedHero] = useState(heroes[0])
+  const [selectedHero, setSelectedHero] = useState(heroNames[0])
   const [selectedType, setSelectedType] = useState(crosshairTypes[0])
   const [selectedColor, setSelectedColor] = useState(crosshairColors[0])
   const [state, formAction] = useActionState(createCrosshairAction, createCrosshairInitialState)
@@ -104,7 +88,7 @@ export default function CreatePage() {
       setPreviewImage(null)
       setUploadedImage(null)
       setUploadError(null)
-      setSelectedHero(heroes[0])
+      setSelectedHero(heroNames[0])
       setSelectedType(crosshairTypes[0])
       setSelectedColor(crosshairColors[0])
     }
@@ -185,7 +169,7 @@ export default function CreatePage() {
                         <SelectValue placeholder="选择英雄" />
                       </SelectTrigger>
                       <SelectContent>
-                        {heroes.map((hero) => (
+                        {heroNames.map((hero) => (
                           <SelectItem key={hero} value={hero}>
                             {hero}
                           </SelectItem>

@@ -35,6 +35,12 @@ export function HeroSection() {
               <Users className="h-4 w-4" />
               职业选手设置
             </Button>
+            <Button asChild size="lg" variant="secondary" className="gap-2">
+              <Link href="/heroes/general">
+                <Crosshair className="h-4 w-4" />
+                英雄分类
+              </Link>
+            </Button>
           </div>
 
           <div className="mt-16 grid grid-cols-3 gap-8 md:gap-16">

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { Filter, Loader2, Search, User } from "lucide-react"
 
@@ -9,13 +9,9 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { CrosshairListItem } from "@/lib/types/crosshair"
 import { useDebouncedValue } from "@/hooks/use-debounced-value"
+import { HERO_NAME_LIST } from "@/lib/constants/heroes"
 
 type SortOption = "latest" | "popular" | "name"
-
-const HERO_OPTIONS = ["通用", "源氏", "黑百合", "末日铁拳", "艾什", "猎空", "回声", "士兵76", "卡西迪"].map((hero) => ({
-  label: hero,
-  value: hero,
-}))
 
 const SORT_OPTIONS: Record<SortOption, string> = {
   latest: "最新发布",
@@ -31,20 +27,40 @@ interface CrosshairApiResponse {
   hasMore: boolean
 }
 
-export function CrosshairGallery() {
+interface CrosshairGalleryProps {
+  titlePrefix?: string
+  titleAccent?: string
+  description?: string
+  defaultHero?: string
+  heroLocked?: boolean
+  defaultSort?: SortOption
+  headerSlot?: ReactNode
+}
+
+export function CrosshairGallery({
+  titlePrefix = "准星",
+  titleAccent = "库",
+  description = "浏览社区和职业选手分享的准星配置，在游戏中手动应用",
+  defaultHero,
+  heroLocked = false,
+  defaultSort = "latest",
+  headerSlot,
+}: CrosshairGalleryProps = {}) {
   const [searchQuery, setSearchQuery] = useState("")
   const [authorQuery, setAuthorQuery] = useState("")
-  const [selectedHero, setSelectedHero] = useState("all")
-  const [sortBy, setSortBy] = useState<SortOption>("latest")
+  const [heroFilter, setHeroFilter] = useState(defaultHero ?? "all")
+  const [sortBy, setSortBy] = useState<SortOption>(defaultSort)
 
   const debouncedSearch = useDebouncedValue(searchQuery, 400)
   const debouncedAuthor = useDebouncedValue(authorQuery, 400)
 
   const intersectionRef = useRef<HTMLDivElement | null>(null)
 
+  const activeHero = heroLocked ? defaultHero ?? "all" : heroFilter
+
   const queryKey = useMemo(
-    () => ["crosshairs", { hero: selectedHero, search: debouncedSearch, author: debouncedAuthor, sortBy }],
-    [selectedHero, debouncedSearch, debouncedAuthor, sortBy],
+    () => ["crosshairs", { hero: activeHero, search: debouncedSearch, author: debouncedAuthor, sortBy }],
+    [activeHero, debouncedSearch, debouncedAuthor, sortBy],
   )
 
   const fetchCrosshairs = async ({ pageParam = 1 }: { pageParam?: number }) => {
@@ -62,8 +78,8 @@ export function CrosshairGallery() {
       params.set("author", debouncedAuthor)
     }
 
-    if (selectedHero !== "all") {
-      params.set("hero", selectedHero)
+    if (activeHero !== "all") {
+      params.set("hero", activeHero)
     }
 
     const response = await fetch(`/api/crosshairs?${params.toString()}`, {
@@ -96,6 +112,7 @@ export function CrosshairGallery() {
 
   const items = data?.pages.flatMap((page) => page.items) ?? []
   const showEmpty = !isPending && items.length === 0 && status === "success"
+  const heroFilterEnabled = !heroLocked
 
   useEffect(() => {
     const target = intersectionRef.current
@@ -116,15 +133,20 @@ export function CrosshairGallery() {
     return () => observer.disconnect()
   }, [fetchNextPage, hasNextPage, isFetchingNextPage, queryKey])
 
+  const defaultHeader = (
+    <div className="text-center">
+      <h2 className="mb-4 text-3xl font-bold md:text-4xl">
+        {titlePrefix}
+        <span className="text-primary">{titleAccent}</span>
+      </h2>
+      <p className="text-muted-foreground">{description}</p>
+    </div>
+  )
+
   return (
     <section id="gallery" className="border-b border-border py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-4">
-        <div className="mb-12 text-center">
-          <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-            准星<span className="text-primary">库</span>
-          </h2>
-          <p className="text-muted-foreground">浏览社区和职业选手分享的准星配置，在游戏中手动应用</p>
-        </div>
+        <div className="mb-12">{headerSlot ?? defaultHeader}</div>
 
         <div className="mb-8 space-y-4">
           <div className="flex flex-col gap-4 md:flex-row">
@@ -149,20 +171,27 @@ export function CrosshairGallery() {
           </div>
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="flex gap-3">
-              <Select value={selectedHero} onValueChange={setSelectedHero}>
-                <SelectTrigger className="w-40">
-                  <Filter className="mr-2 h-4 w-4" />
-                  <SelectValue placeholder="选择英雄" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">全部英雄</SelectItem>
-                  {HERO_OPTIONS.map((hero) => (
-                    <SelectItem key={hero.value} value={hero.value}>
-                      {hero.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {heroFilterEnabled ? (
+                <Select value={heroFilter} onValueChange={setHeroFilter}>
+                  <SelectTrigger className="w-40">
+                    <Filter className="mr-2 h-4 w-4" />
+                    <SelectValue placeholder="选择英雄" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">全部英雄</SelectItem>
+                    {HERO_NAME_LIST.map((hero) => (
+                      <SelectItem key={hero} value={hero}>
+                        {hero}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="flex items-center rounded-full border border-border/60 px-4 py-2 text-sm text-muted-foreground">
+                  <Filter className="mr-2 h-3.5 w-3.5 text-primary" />
+                  当前英雄：<span className="ml-1 font-semibold text-foreground">{activeHero}</span>
+                </div>
+              )}
 
               <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
                 <SelectTrigger className="w-36">
