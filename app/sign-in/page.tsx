@@ -3,6 +3,7 @@ import { Footer } from "@/components/footer"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { SignInForm } from "./sign-in-form"
 import Link from "next/link"
+import { WeChatSignInButton } from "./wechat-sign-in-button"
 
 type SignInPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>
@@ -12,6 +13,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const params = (await searchParams) ?? {}
   const redirectParam = typeof params.redirect === "string" ? params.redirect : undefined
   const redirectTo = redirectParam?.startsWith("/") ? redirectParam : "/dashboard"
+  const isWeChatEnabled = Boolean(process.env.WECHAT_APP_ID && process.env.WECHAT_APP_SECRET)
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -25,6 +27,12 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               <SignInForm redirectTo={redirectTo} />
+              {isWeChatEnabled ? (
+                <div className="space-y-2 pt-2">
+                  <p className="text-center text-xs uppercase text-muted-foreground tracking-[0.2em]">或</p>
+                  <WeChatSignInButton redirectTo={redirectTo} />
+                </div>
+              ) : null}
               <p className="text-center text-sm text-muted-foreground">
                 还没有账号？{" "}
                 <Link
