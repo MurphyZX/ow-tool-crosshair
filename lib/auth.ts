@@ -11,11 +11,11 @@ import { wechatOAuth } from "@/lib/plugins/wechat-oauth"
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "")
 const authBaseURL = `${siteUrl}/api/auth`
 
-const wechatAppId = process.env.WECHAT_APP_ID
-const wechatAppSecret = process.env.WECHAT_APP_SECRET
+const wechatAppId = process.env.WECHAT_APP_ID ?? ""
+const wechatAppSecret = process.env.WECHAT_APP_SECRET ?? ""
 const authPlugins: BetterAuthPlugin[] = []
 
-if (wechatAppId && wechatAppSecret) {
+if (process.env.WECHAT_LOGIN_ENABLED === undefined ? true : /^true$/i.test(process.env.WECHAT_LOGIN_ENABLED)) {
   authPlugins.push(
     wechatOAuth({
       appId: wechatAppId,
@@ -25,8 +25,8 @@ if (wechatAppId && wechatAppSecret) {
       debug: /^true$/i.test(process.env.WECHAT_DEBUG ?? ""),
     }),
   )
-} else if (process.env.NODE_ENV !== "production" && (wechatAppId || wechatAppSecret)) {
-  console.warn("WECHAT_APP_ID/WECHAT_APP_SECRET 未全部配置，微信登录功能将被跳过。")
+} else {
+  console.info("WECHAT_LOGIN_ENABLED 被设置为 false，微信登录相关插件未加载。")
 }
 
 export const auth = betterAuth({

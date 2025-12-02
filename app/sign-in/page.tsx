@@ -13,8 +13,6 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const params = (await searchParams) ?? {}
   const redirectParam = typeof params.redirect === "string" ? params.redirect : undefined
   const redirectTo = redirectParam?.startsWith("/") ? redirectParam : "/dashboard"
-  const isWeChatEnabled = Boolean(process.env.WECHAT_APP_ID && process.env.WECHAT_APP_SECRET)
-
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Header />
@@ -27,7 +25,8 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               <SignInForm redirectTo={redirectTo} />
-              {isWeChatEnabled ? (
+              {process.env.WECHAT_LOGIN_ENABLED === undefined ||
+              /^true$/i.test(process.env.WECHAT_LOGIN_ENABLED) ? (
                 <div className="space-y-2 pt-2">
                   <p className="text-center text-xs uppercase text-muted-foreground tracking-[0.2em]">或</p>
                   <WeChatSignInButton redirectTo={redirectTo} />
