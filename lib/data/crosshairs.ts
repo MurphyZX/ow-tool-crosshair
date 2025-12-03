@@ -61,7 +61,8 @@ export const getRelatedCrosshairs = cache(
     const heroConditions = heroVariants.length
       ? heroVariants.map((variant) => eq(crosshairs.hero, variant))
       : [eq(crosshairs.hero, hero)]
-    const heroWhere: SQL<unknown> = heroConditions.length === 1 ? heroConditions[0]! : or(...heroConditions)
+    const heroWhere: SQL<unknown> =
+      heroConditions.length === 1 ? heroConditions[0]! : or(...heroConditions) ?? heroConditions[0]!
 
     const rows = await db
       .select(crosshairSelection)

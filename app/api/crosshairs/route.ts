@@ -39,7 +39,12 @@ export async function GET(request: NextRequest) {
 
     if (heroVariants.length) {
       const heroConditions = heroVariants.map((variant) => eq(crosshairs.hero, variant))
-      const heroFilter: SQL<unknown> = heroConditions.length === 1 ? heroConditions[0]! : or(...heroConditions)
+      let heroFilter: SQL<unknown>
+      if (heroConditions.length === 1) {
+        heroFilter = heroConditions[0]!
+      } else {
+        heroFilter = or(...heroConditions) ?? heroConditions[0]!
+      }
       filters.push(heroFilter)
     }
 
