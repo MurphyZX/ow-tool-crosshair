@@ -13,7 +13,7 @@ type SignUpPageProps = {
 export default async function SignUpPage({ searchParams }: SignUpPageProps) {
   const params = (await searchParams) ?? {}
   const redirectParam = typeof params.redirect === "string" ? params.redirect : undefined
-  const redirectTo = redirectParam?.startsWith("/") ? redirectParam : "/dashboard"
+  const redirectTo = redirectParam?.startsWith("/") ? redirectParam : "/profile"
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

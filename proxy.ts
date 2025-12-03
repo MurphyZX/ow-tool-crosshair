@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 
 import { auth } from "@/lib/auth"
 
-const PROTECTED_PATHS = ["/create", "/dashboard", "/profile", "/api/upload-image"]
+const PROTECTED_PATHS = ["/create", "/profile", "/api/upload-image"]
 const AUTH_PAGES = ["/sign-in", "/sign-up"]
 const SESSION_COOKIE_KEYS = [
   "better-auth.session_token",
@@ -25,7 +25,7 @@ export async function proxy(request: NextRequest) {
 
   if (isAuthPage) {
     if (session) {
-      const redirectTarget = getRedirectParam(request) ?? "/dashboard"
+      const redirectTarget = getRedirectParam(request) ?? "/profile"
       return NextResponse.redirect(new URL(redirectTarget, request.url))
     }
     return NextResponse.next()
@@ -89,5 +89,5 @@ async function getSession(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/create/:path*", "/dashboard/:path*", "/profile/:path*", "/api/upload-image", "/sign-in", "/sign-up"],
+  matcher: ["/create/:path*", "/profile/:path*", "/api/upload-image", "/sign-in", "/sign-up"],
 }

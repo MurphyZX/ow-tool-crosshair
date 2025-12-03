@@ -156,7 +156,7 @@ export default async function CrosshairDetailPage({ params }: { params: Promise<
                     <Link href="/create">分享我的准星</Link>
                   </Button>
                   <Button variant="outline" asChild>
-                    <Link href="/dashboard">管理我的准星</Link>
+                    <Link href="/profile">管理我的准星</Link>
                   </Button>
                 </div>
               </section>

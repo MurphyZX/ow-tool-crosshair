@@ -57,7 +57,7 @@ export function SignUpForm({ redirectTo }: SignUpFormProps) {
           },
           onSuccess: () => {
             reset()
-            router.push(redirectTo || "/dashboard")
+            router.push(redirectTo || "/profile")
           },
         },
       )

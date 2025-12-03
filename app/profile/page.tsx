@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
@@ -7,6 +8,7 @@ import { Footer } from "@/components/footer"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CrosshairCard } from "@/components/crosshair-card"
+import { DeleteCrosshairForm } from "@/components/delete-crosshair-form"
 import type { CrosshairListItem } from "@/lib/types/crosshair"
 import {
   getCrosshairsByUser,
@@ -14,6 +16,7 @@ import {
   getUserLikedCrosshairs,
 } from "@/lib/data/crosshairs"
 import { auth } from "@/lib/auth"
+import { HERO_BY_SLUG } from "@/lib/constants/heroes"
 
 export const revalidate = 0
 
@@ -61,7 +64,7 @@ export default async function ProfilePage() {
           </section>
 
           <section className="grid gap-4 md:grid-cols-3">
-            <StatCard label="我创建的准星" value={myCrosshairs.length} description="Dashboard 中可继续编辑/删除" />
+            <StatCard label="我创建的准星" value={myCrosshairs.length} description="可直接在此页面管理与删除" />
             <StatCard label="我点赞的准星" value={likedItems.length} description="首页可继续点赞/取消点赞" />
             <StatCard label="我收藏的准星" value={favoriteItems.length} description="收藏仅自己可见" />
           </section>
@@ -73,6 +76,7 @@ export default async function ProfilePage() {
             emptyHint="你还没有发布任何准星，点击上方按钮快速创建。"
             ctaLabel="去创建"
             ctaHref="/create"
+            variant="owned"
           />
 
           <CrosshairSection
@@ -106,6 +110,7 @@ function CrosshairSection({
   emptyHint,
   ctaHref,
   ctaLabel,
+  variant = "default",
 }: {
   title: string
   description: string
@@ -113,6 +118,7 @@ function CrosshairSection({
   emptyHint: string
   ctaLabel: string
   ctaHref: string
+  variant?: "default" | "owned"
 }) {
   return (
     <section className="space-y-4">
@@ -127,9 +133,13 @@ function CrosshairSection({
       </div>
       {items.length ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((item) => (
-            <CrosshairCard key={item.id} crosshair={item} />
-          ))}
+          {items.map((item) =>
+            variant === "owned" ? (
+              <OwnedCrosshairCard key={item.id} crosshair={item} />
+            ) : (
+              <CrosshairCard key={item.id} crosshair={item} />
+            ),
+          )}
         </div>
       ) : (
         <Card className="border-dashed border-border/70 bg-card/50">
@@ -157,6 +167,66 @@ function StatCard({ label, value, description }: { label: string; value: number;
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground">{description}</p>
+      </CardContent>
+    </Card>
+  )
+}
+
+function OwnedCrosshairCard({ crosshair }: { crosshair: CrosshairListItem }) {
+  const heroName = HERO_BY_SLUG[crosshair.hero]?.name ?? crosshair.hero
+  const createdAt = new Intl.DateTimeFormat("zh-CN", { dateStyle: "medium" }).format(crosshair.createdAt)
+
+  return (
+    <Card className="border-border bg-card/60">
+      <CardHeader className="space-y-1">
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle className="text-lg">{crosshair.name}</CardTitle>
+          <CardDescription className="text-xs font-semibold">{heroName}</CardDescription>
+        </div>
+        <CardDescription className="flex flex-wrap items-center gap-2 text-xs">
+          <span>{crosshair.type}</span>
+          <span className="text-muted-foreground">|</span>
+          <span>{crosshair.color}</span>
+          <span className="text-muted-foreground">|</span>
+          <span>{createdAt}</span>
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3 text-sm">
+        {crosshair.imageUrl ? (
+          <div className="relative h-40 w-full overflow-hidden rounded-lg">
+            <Image
+              src={crosshair.imageUrl}
+              alt={`${crosshair.name} 截图`}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          </div>
+        ) : null}
+        {crosshair.description ? (
+          <p className="text-muted-foreground">{crosshair.description}</p>
+        ) : (
+          <p className="text-muted-foreground/70">暂无描述</p>
+        )}
+        <div className="grid grid-cols-2 gap-3 rounded-lg border border-border/60 bg-muted/30 p-3 text-xs">
+          <div>
+            <p className="text-muted-foreground">粗细</p>
+            <p className="font-semibold">{crosshair.thickness}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">准星长度</p>
+            <p className="font-semibold">{crosshair.crosshairLength}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">中心间隙</p>
+            <p className="font-semibold">{crosshair.centerGap}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">不透明度</p>
+            <p className="font-semibold">{crosshair.opacity}</p>
+          </div>
+        </div>
+        <DeleteCrosshairForm crosshairId={crosshair.id} dense />
       </CardContent>
     </Card>
   )

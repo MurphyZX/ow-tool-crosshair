@@ -2,33 +2,35 @@
 
 import { useActionState } from "react"
 import { useFormStatus } from "react-dom"
-import { Button } from "@/components/ui/button"
 import { Loader2, Trash2 } from "lucide-react"
+
 import { deleteCrosshairAction } from "@/app/actions/crosshair-actions"
 import { deleteCrosshairInitialState, type DeleteCrosshairState } from "@/app/actions/crosshair-state"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-type DeleteCrosshairFormProps = {
+interface DeleteCrosshairFormProps {
   crosshairId: number
+  dense?: boolean
 }
 
-export function DeleteCrosshairForm({ crosshairId }: DeleteCrosshairFormProps) {
+export function DeleteCrosshairForm({ crosshairId, dense = false }: DeleteCrosshairFormProps) {
   const [state, formAction] = useActionState(deleteCrosshairAction, deleteCrosshairInitialState)
 
   return (
     <form action={formAction} className="space-y-2">
       <input type="hidden" name="crosshairId" value={crosshairId} />
-      <DeleteButton />
+      <DeleteButton dense={dense} />
       <DeleteMessage state={state} />
     </form>
   )
 }
 
-function DeleteButton() {
+function DeleteButton({ dense }: { dense: boolean }) {
   const { pending } = useFormStatus()
 
   return (
-    <Button type="submit" variant="destructive" size="sm" className="w-full" disabled={pending}>
+    <Button type="submit" variant="destructive" size={dense ? "sm" : "default"} className="w-full" disabled={pending}>
       {pending ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />

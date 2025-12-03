@@ -131,7 +131,7 @@ export async function deleteCrosshairAction(
     }
 
     revalidatePath("/")
-    revalidatePath("/dashboard")
+    revalidatePath("/profile")
 
     return { status: "success", message: "准星已删除" }
   } catch (error) {

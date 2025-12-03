@@ -56,7 +56,7 @@ export function SignInForm({ redirectTo }: SignInFormProps) {
           },
           onSuccess: () => {
             reset()
-            router.push(redirectTo || "/dashboard")
+            router.push(redirectTo || "/profile")
           },
         },
       )
