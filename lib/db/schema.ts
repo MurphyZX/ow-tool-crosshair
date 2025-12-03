@@ -7,6 +7,7 @@ import {
   serial,
   text,
   timestamp,
+  uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core"
 
@@ -47,7 +48,47 @@ export const crosshairs = pgTable(
   }),
 )
 
+export const crosshairLikes = pgTable(
+  "crosshair_likes",
+  {
+    id: serial("id").primaryKey(),
+    crosshairId: integer("crosshair_id")
+      .notNull()
+      .references(() => crosshairs.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    crosshairIdx: index("crosshair_likes_crosshair_idx").on(table.crosshairId),
+    userIdx: index("crosshair_likes_user_idx").on(table.userId),
+    uniqueLike: uniqueIndex("crosshair_likes_user_crosshair_uidx").on(table.userId, table.crosshairId),
+  }),
+)
+
+export const crosshairFavorites = pgTable(
+  "crosshair_favorites",
+  {
+    id: serial("id").primaryKey(),
+    crosshairId: integer("crosshair_id")
+      .notNull()
+      .references(() => crosshairs.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    crosshairIdx: index("crosshair_favorites_crosshair_idx").on(table.crosshairId),
+    userIdx: index("crosshair_favorites_user_idx").on(table.userId),
+    uniqueFavorite: uniqueIndex("crosshair_favorites_user_crosshair_uidx").on(table.userId, table.crosshairId),
+  }),
+)
+
 export type Crosshair = InferSelectModel<typeof crosshairs>
 export type NewCrosshair = InferInsertModel<typeof crosshairs>
+export type CrosshairLike = InferSelectModel<typeof crosshairLikes>
+export type CrosshairFavorite = InferSelectModel<typeof crosshairFavorites>
 
 export * from "./auth-schema"

@@ -1,7 +1,8 @@
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { CalendarDays, Heart, MessageSquareMore } from "lucide-react"
+import { headers } from "next/headers"
+import { CalendarDays, MessageSquareMore } from "lucide-react"
 
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -9,9 +10,11 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { CrosshairPreview } from "@/components/crosshair-preview"
 import { CrosshairCard } from "@/components/crosshair-card"
-import { getCrosshairById, getRelatedCrosshairs } from "@/lib/data/crosshairs"
+import { CrosshairEngagementBar } from "@/components/crosshair-engagement-bar"
+import { getCrosshairById, getRelatedCrosshairs, getViewerEngagementMap } from "@/lib/data/crosshairs"
 import { getPreviewSettings } from "@/lib/crosshair-preview-settings"
 import { HERO_BY_SLUG } from "@/lib/constants/heroes"
+import { auth } from "@/lib/auth"
 
 export const revalidate = 0
 
@@ -34,6 +37,19 @@ export default async function CrosshairDetailPage({ params }: { params: Promise<
     excludeId: crosshair.id,
     limit: 3,
   })
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+
+  let viewerLiked = false
+  let viewerFavorited = false
+
+  if (session) {
+    const engagementMap = await getViewerEngagementMap(session.user.id, [crosshair.id])
+    viewerLiked = Boolean(engagementMap[crosshair.id]?.liked)
+    viewerFavorited = Boolean(engagementMap[crosshair.id]?.favorited)
+  }
 
   const previewSettings = getPreviewSettings(crosshair)
   const heroName = HERO_BY_SLUG[crosshair.hero]?.name ?? crosshair.hero
@@ -109,10 +125,14 @@ export default async function CrosshairDetailPage({ params }: { params: Promise<
                     <CalendarDays className="h-4 w-4" />
                     {createdAt}
                   </span>
-                  <span className="flex items-center gap-1">
-                    <Heart className="h-4 w-4" />
-                    {Number(crosshair.likes ?? 0).toLocaleString()} 次点赞
-                  </span>
+                </div>
+                <div className="mt-4">
+                  <CrosshairEngagementBar
+                    crosshairId={crosshair.id}
+                    initialLikeCount={crosshair.likes ?? 0}
+                    initialLiked={viewerLiked}
+                    initialFavorited={viewerFavorited}
+                  />
                 </div>
               </section>
 

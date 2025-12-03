@@ -6,8 +6,9 @@ import { and, asc, desc, eq, ilike, or, type SQL } from "drizzle-orm"
 import { db } from "@/lib/db"
 import { crosshairs } from "@/lib/db/schema"
 import type { CrosshairListItem } from "@/lib/types/crosshair"
-import { crosshairSelection } from "@/lib/data/crosshairs"
+import { crosshairSelection, getViewerEngagementMap } from "@/lib/data/crosshairs"
 import { getHeroIdentifierVariants } from "@/lib/constants/heroes"
+import { auth } from "@/lib/auth"
 
 const DEFAULT_PAGE_SIZE = 12
 const MAX_PAGE_SIZE = 48
@@ -73,8 +74,28 @@ export async function GET(request: NextRequest) {
     const hasMore = rows.length > limit
     const items = hasMore ? rows.slice(0, limit) : rows
 
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    })
+
+    const userId = session?.user.id
+    let itemsWithViewerState: CrosshairListItem[] = items
+
+    if (userId) {
+      const engagementMap = await getViewerEngagementMap(
+        userId,
+        items.map((item) => item.id),
+      )
+
+      itemsWithViewerState = items.map((item) => ({
+        ...item,
+        isLikedByViewer: Boolean(engagementMap[item.id]?.liked),
+        isFavoritedByViewer: Boolean(engagementMap[item.id]?.favorited),
+      }))
+    }
+
     const response: CrosshairApiResponse = {
-      items,
+      items: itemsWithViewerState,
       page,
       nextPage: hasMore ? page + 1 : null,
       hasMore,

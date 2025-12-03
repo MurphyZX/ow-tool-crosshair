@@ -1,9 +1,9 @@
 import { cache } from "react"
-import { and, desc, eq, ne, or, type SQL } from "drizzle-orm"
+import { and, desc, eq, inArray, ne, or, type SQL } from "drizzle-orm"
 
 import { db } from "@/lib/db"
-import { crosshairs } from "@/lib/db/schema"
-import type { CrosshairListItem } from "@/lib/types/crosshair"
+import { crosshairFavorites, crosshairLikes, crosshairs } from "@/lib/db/schema"
+import type { CrosshairListItem, CrosshairViewerState } from "@/lib/types/crosshair"
 import { getHeroIdentifierVariants } from "@/lib/constants/heroes"
 
 export const crosshairSelection = {
@@ -74,3 +74,59 @@ export const getRelatedCrosshairs = cache(
     return rows
   },
 )
+
+export async function getUserLikedCrosshairs(userId: string): Promise<CrosshairListItem[]> {
+  const rows = await db
+    .select(crosshairSelection)
+    .from(crosshairLikes)
+    .innerJoin(crosshairs, eq(crosshairLikes.crosshairId, crosshairs.id))
+    .where(eq(crosshairLikes.userId, userId))
+    .orderBy(desc(crosshairLikes.createdAt))
+
+  return rows
+}
+
+export async function getUserFavoritedCrosshairs(userId: string): Promise<CrosshairListItem[]> {
+  const rows = await db
+    .select(crosshairSelection)
+    .from(crosshairFavorites)
+    .innerJoin(crosshairs, eq(crosshairFavorites.crosshairId, crosshairs.id))
+    .where(eq(crosshairFavorites.userId, userId))
+    .orderBy(desc(crosshairFavorites.createdAt))
+
+  return rows
+}
+
+export async function getViewerEngagementMap(
+  userId: string,
+  crosshairIds: number[],
+): Promise<Record<number, CrosshairViewerState>> {
+  if (!crosshairIds.length) {
+    return {}
+  }
+
+  const [likeRows, favoriteRows] = await Promise.all([
+    db
+      .select({ crosshairId: crosshairLikes.crosshairId })
+      .from(crosshairLikes)
+      .where(and(eq(crosshairLikes.userId, userId), inArray(crosshairLikes.crosshairId, crosshairIds))),
+    db
+      .select({ crosshairId: crosshairFavorites.crosshairId })
+      .from(crosshairFavorites)
+      .where(and(eq(crosshairFavorites.userId, userId), inArray(crosshairFavorites.crosshairId, crosshairIds))),
+  ])
+
+  const result: Record<number, CrosshairViewerState> = {}
+
+  for (const row of likeRows) {
+    const current = result[row.crosshairId] ?? { liked: false, favorited: false }
+    result[row.crosshairId] = { ...current, liked: true }
+  }
+
+  for (const row of favoriteRows) {
+    const current = result[row.crosshairId] ?? { liked: false, favorited: false }
+    result[row.crosshairId] = { ...current, favorited: true }
+  }
+
+  return result
+}

@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 
 import { auth } from "@/lib/auth"
 
-const PROTECTED_PATHS = ["/create", "/dashboard", "/api/upload-image"]
+const PROTECTED_PATHS = ["/create", "/dashboard", "/profile", "/api/upload-image"]
 const AUTH_PAGES = ["/sign-in", "/sign-up"]
 const SESSION_COOKIE_KEYS = [
   "better-auth.session_token",
@@ -89,5 +89,5 @@ async function getSession(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/create/:path*", "/dashboard/:path*", "/api/upload-image", "/sign-in", "/sign-up"],
+  matcher: ["/create/:path*", "/dashboard/:path*", "/profile/:path*", "/api/upload-image", "/sign-in", "/sign-up"],
 }

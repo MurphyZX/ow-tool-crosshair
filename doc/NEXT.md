@@ -11,7 +11,7 @@
 **P1｜下一轮迭代重点**
 
 - 职业选手专区：doc/TODO.md (line 13) 仍未开始，实现时需在 crosshairs 表扩展职业标签或新表，并提供 /pro 列表及筛选，复用现有 gallery（符合 YAGNI——只做展示 +筛选，不提前实现战队 CMS）。
-- 点赞/收藏与个人主页：数据库已有 likes 字段（lib/db/schema.ts (lines 5-52)），但缺少 API 与 UI。建议先实现乐观点赞 API，再拆出“收藏”表，最后扩展 /dashboard 或新 /me 页面（doc/TODO.md (lines 17-19)），以 SOLID 思路将社交逻辑放到独立的 service/server action。
+- 点赞/收藏与个人主页：已上线 `/api/crosshairs/[id]/like|favorite`、`hooks/use-crosshair-engagement.ts` 与 `/profile` 聚合页，点赞/收藏状态在 `CrosshairCard` 与准星详情可即时反馈。后续可考虑增加收藏夹分组或批量管理能力，以及在列表页展示“已收藏”标签强化状态感知。
 - 评论系统：可在 /crosshair/[id] 下方添加评论区，同时封装 Server Action + React Query mutation，沿用 lib/validations 中央校验，避免重复（DRY）。
 
 **P2｜体验增强（不阻塞发布）**

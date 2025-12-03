@@ -14,6 +14,7 @@ OW Crosshair 是一个基于 Next.js App Router 的准星分享站点，覆盖�
 - **准星创建器**：`app/create/page.tsx` 支持拖拽上传截图、表单校验（Zod）和 `createCrosshairAction` Server Action 原子写入。
 - **多渠道登录**：Better Auth + 邮箱密码 + 可选微信扫码（`lib/plugins/wechat-oauth.ts`），`proxy.ts` 中间件统一保护 `/create`、`/dashboard`、`/api/upload-image` 等路由。
 - **S3 图片上传**：`app/api/upload-image` 调用 `lib/storage/s3.ts` 进行大小/格式校验、对象存储和回显 URL，删除准星时同步删除对象。
+- **点赞、收藏与个人主页**：`hooks/use-crosshair-engagement.ts` 驱动 `CrosshairCard` 与准星详情中的点赞/收藏即时反馈，`/profile` 页面集中展示我创建/点赞/收藏的准星，并通过 `/api/crosshairs/[id]/(like|favorite)` 与 `crosshair_likes`、`crosshair_favorites` 表落盘。
 
 ## 技术栈
 

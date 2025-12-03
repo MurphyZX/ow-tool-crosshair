@@ -22,4 +22,12 @@ export type CrosshairListItem = Pick<
   | "imageUrl"
   | "userId"
   | "createdAt"
->
+> & {
+  isLikedByViewer?: boolean
+  isFavoritedByViewer?: boolean
+}
+
+export interface CrosshairViewerState {
+  liked: boolean
+  favorited: boolean
+}

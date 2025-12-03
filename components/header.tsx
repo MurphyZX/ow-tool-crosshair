@@ -42,6 +42,9 @@ export function Header() {
               <Button variant="outline" asChild>
                 <Link href="/dashboard">我的准星</Link>
               </Button>
+              <Button variant="ghost" asChild>
+                <Link href="/profile">个人主页</Link>
+              </Button>
               <Button asChild>
                 <Link href="/create">分享准星</Link>
               </Button>
@@ -75,6 +78,9 @@ export function Header() {
             <>
               <Link href="/dashboard" className="text-sm text-muted-foreground" onClick={() => setIsOpen(false)}>
                 我的准星
+              </Link>
+              <Link href="/profile" className="text-sm text-muted-foreground" onClick={() => setIsOpen(false)}>
+                个人主页
               </Link>
               <Button className="w-full" asChild>
                 <Link href="/create">分享准星</Link>

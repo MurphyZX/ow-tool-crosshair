@@ -2,28 +2,27 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Heart, Eye } from "lucide-react"
+import { Bookmark, Eye, Heart } from "lucide-react"
 import { CrosshairPreview } from "./crosshair-preview"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import type { CrosshairListItem } from "@/lib/types/crosshair"
 import { getPreviewSettings } from "@/lib/crosshair-preview-settings"
 import { HERO_BY_SLUG } from "@/lib/constants/heroes"
+import { useCrosshairEngagement } from "@/hooks/use-crosshair-engagement"
 
 export function CrosshairCard({ crosshair }: { crosshair: CrosshairListItem }) {
-  const [liked, setLiked] = useState(false)
-  const [likeCount, setLikeCount] = useState(crosshair.likes ?? 0)
   const heroName = HERO_BY_SLUG[crosshair.hero]?.name ?? crosshair.hero
 
   const previewSettings = useMemo(() => getPreviewSettings(crosshair), [crosshair])
-
-  const handleLike = () => {
-    setLiked(!liked)
-    setLikeCount(liked ? likeCount - 1 : likeCount + 1)
-  }
+  const { favorited, favoritePending, liked, likeCount, likePending, toggleFavorite, toggleLike } = useCrosshairEngagement(crosshair.id, {
+    initialLiked: crosshair.isLikedByViewer,
+    initialFavorited: crosshair.isFavoritedByViewer,
+    initialLikeCount: crosshair.likes ?? 0,
+  })
 
   const hasImage = Boolean(crosshair.imageUrl)
 
@@ -61,14 +60,30 @@ export function CrosshairCard({ crosshair }: { crosshair: CrosshairListItem }) {
             </Link>
             <p className="text-sm text-muted-foreground">by {crosshair.author}</p>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className={liked ? "text-red-500" : "text-muted-foreground"}
-            onClick={handleLike}
-          >
-            <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
-          </Button>
+          <div className="flex items-center gap-1.5">
+            <Button
+              variant="ghost"
+              size="icon"
+              className={liked ? "text-red-500" : "text-muted-foreground"}
+              onClick={toggleLike}
+              disabled={likePending}
+              aria-pressed={liked}
+              aria-label={liked ? "取消点赞" : "点赞"}
+            >
+              <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={favorited ? "text-amber-500" : "text-muted-foreground"}
+              onClick={toggleFavorite}
+              disabled={favoritePending}
+              aria-pressed={favorited}
+              aria-label={favorited ? "取消收藏" : "收藏准星"}
+            >
+              <Bookmark className={`h-4 w-4 ${favorited ? "fill-current" : ""}`} />
+            </Button>
+          </div>
         </div>
 
         <div className="flex items-center justify-between text-sm text-muted-foreground">
