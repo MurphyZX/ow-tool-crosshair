@@ -9,15 +9,15 @@ import { HeroSwitcher } from "@/components/hero-switcher"
 import { HEROES, HERO_BY_SLUG } from "@/lib/constants/heroes"
 
 interface HeroPageProps {
-  params: Promise<{ name: string }>
+  params: { name: string }
 }
 
 export async function generateStaticParams() {
   return HEROES.map((hero) => ({ name: hero.slug }))
 }
 
-export async function generateMetadata({ params }: HeroPageProps): Promise<Metadata> {
-  const { name } = await params
+export function generateMetadata({ params }: HeroPageProps): Metadata {
+  const { name } = params
   const hero = HERO_BY_SLUG[name]
 
   if (!hero) {
@@ -34,8 +34,8 @@ export async function generateMetadata({ params }: HeroPageProps): Promise<Metad
   }
 }
 
-export default async function HeroPage({ params }: HeroPageProps) {
-  const { name } = await params
+export default function HeroPage({ params }: HeroPageProps) {
+  const { name } = params
   const hero = HERO_BY_SLUG[name]
 
   if (!hero) {
