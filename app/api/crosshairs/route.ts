@@ -7,6 +7,7 @@ import { db } from "@/lib/db"
 import { crosshairs } from "@/lib/db/schema"
 import type { CrosshairListItem } from "@/lib/types/crosshair"
 import { crosshairSelection } from "@/lib/data/crosshairs"
+import { getHeroIdentifierVariants } from "@/lib/constants/heroes"
 
 const DEFAULT_PAGE_SIZE = 12
 const MAX_PAGE_SIZE = 48
@@ -29,15 +30,17 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(Math.max(1, limitParam), MAX_PAGE_SIZE)
     const offset = (page - 1) * limit
 
-    const hero = normalizeQueryParam(searchParams.get("hero"))
+    const heroVariants = getHeroIdentifierVariants(searchParams.get("hero"))
     const author = normalizeQueryParam(searchParams.get("author"))
     const searchQuery = normalizeQueryParam(searchParams.get("search"))
     const sortBy = isSortOption(searchParams.get("sort")) ? (searchParams.get("sort") as SortOption) : "latest"
 
     const filters: SQL<unknown>[] = []
 
-    if (hero) {
-      filters.push(eq(crosshairs.hero, hero))
+    if (heroVariants.length) {
+      const heroConditions = heroVariants.map((variant) => eq(crosshairs.hero, variant))
+      const heroFilter: SQL<unknown> = heroConditions.length === 1 ? heroConditions[0]! : or(...heroConditions)
+      filters.push(heroFilter)
     }
 
     if (author) {

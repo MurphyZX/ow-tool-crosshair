@@ -14,6 +14,7 @@ import {
   type DeleteCrosshairState,
 } from "@/app/actions/crosshair-state"
 import { deleteCrosshairImage } from "@/lib/storage/s3"
+import { resolveHeroIdentifier } from "@/lib/constants/heroes"
 
 export async function createCrosshairAction(
   prevState: CreateCrosshairState,
@@ -50,8 +51,13 @@ export async function createCrosshairAction(
       return { status: "error", message: "请先上传准星截图" }
     }
 
+    const heroIdentifier = resolveHeroIdentifier(parsed.hero)
+    const trimmedHero = parsed.hero.trim()
+    const normalizedHero = heroIdentifier.slug || trimmedHero || parsed.hero
+
     await db.insert(crosshairs).values({
       ...parsed,
+      hero: normalizedHero,
       showAccuracy: false,
       scale: 1,
       author: session.user.name ?? session.user.email,

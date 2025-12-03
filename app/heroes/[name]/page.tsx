@@ -80,7 +80,7 @@ export default async function HeroPage({ params }: HeroPageProps) {
         titlePrefix={`${hero.name} `}
         titleAccent="准星库"
         description={`精选适用于 ${hero.name} 的准星配置，结合社区评分与职业选手经验，支持滚动加载与搜索筛选。`}
-        defaultHero={hero.name}
+        defaultHero={hero.slug}
         heroLocked
         headerSlot={heroHeader}
       />

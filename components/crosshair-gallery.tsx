@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { CrosshairListItem } from "@/lib/types/crosshair"
 import { useDebouncedValue } from "@/hooks/use-debounced-value"
-import { HERO_NAME_LIST } from "@/lib/constants/heroes"
+import { HEROES, HERO_BY_SLUG } from "@/lib/constants/heroes"
 
 type SortOption = "latest" | "popular" | "name"
 
@@ -20,6 +20,7 @@ const SORT_OPTIONS: Record<SortOption, string> = {
 }
 
 const PAGE_SIZE = 12
+const HERO_OPTIONS = HEROES.map((hero) => ({ label: hero.name, value: hero.slug }))
 
 interface CrosshairApiResponse {
   items: CrosshairListItem[]
@@ -57,6 +58,7 @@ export function CrosshairGallery({
   const intersectionRef = useRef<HTMLDivElement | null>(null)
 
   const activeHero = heroLocked ? defaultHero ?? "all" : heroFilter
+  const activeHeroLabel = activeHero === "all" ? "全部英雄" : HERO_BY_SLUG[activeHero]?.name ?? activeHero
 
   const queryKey = useMemo(
     () => ["crosshairs", { hero: activeHero, search: debouncedSearch, author: debouncedAuthor, sortBy }],
@@ -179,9 +181,9 @@ export function CrosshairGallery({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">全部英雄</SelectItem>
-                    {HERO_NAME_LIST.map((hero) => (
-                      <SelectItem key={hero} value={hero}>
-                        {hero}
+                    {HERO_OPTIONS.map((hero) => (
+                      <SelectItem key={hero.value} value={hero.value}>
+                        {hero.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -189,7 +191,7 @@ export function CrosshairGallery({
               ) : (
                 <div className="flex items-center rounded-full border border-border/60 px-4 py-2 text-sm text-muted-foreground">
                   <Filter className="mr-2 h-3.5 w-3.5 text-primary" />
-                  当前英雄：<span className="ml-1 font-semibold text-foreground">{activeHero}</span>
+                  当前英雄：<span className="ml-1 font-semibold text-foreground">{activeHeroLabel}</span>
                 </div>
               )}
 

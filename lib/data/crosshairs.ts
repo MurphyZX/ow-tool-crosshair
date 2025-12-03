@@ -1,9 +1,10 @@
 import { cache } from "react"
-import { and, desc, eq, ne } from "drizzle-orm"
+import { and, desc, eq, ne, or, type SQL } from "drizzle-orm"
 
 import { db } from "@/lib/db"
 import { crosshairs } from "@/lib/db/schema"
 import type { CrosshairListItem } from "@/lib/types/crosshair"
+import { getHeroIdentifierVariants } from "@/lib/constants/heroes"
 
 export const crosshairSelection = {
   id: crosshairs.id,
@@ -56,10 +57,16 @@ export const getCrosshairById = cache(async (id: number): Promise<CrosshairListI
 
 export const getRelatedCrosshairs = cache(
   async ({ hero, excludeId, limit = 3 }: { hero: string; excludeId: number; limit?: number }): Promise<CrosshairListItem[]> => {
+    const heroVariants = getHeroIdentifierVariants(hero)
+    const heroConditions = heroVariants.length
+      ? heroVariants.map((variant) => eq(crosshairs.hero, variant))
+      : [eq(crosshairs.hero, hero)]
+    const heroWhere: SQL<unknown> = heroConditions.length === 1 ? heroConditions[0]! : or(...heroConditions)
+
     const rows = await db
       .select(crosshairSelection)
       .from(crosshairs)
-      .where(and(eq(crosshairs.hero, hero), ne(crosshairs.id, excludeId)))
+      .where(and(heroWhere, ne(crosshairs.id, excludeId)))
       .orderBy(desc(crosshairs.createdAt))
       .limit(limit)
 

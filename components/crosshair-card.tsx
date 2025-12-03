@@ -11,10 +11,12 @@ import { CrosshairPreview } from "./crosshair-preview"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import type { CrosshairListItem } from "@/lib/types/crosshair"
 import { getPreviewSettings } from "@/lib/crosshair-preview-settings"
+import { HERO_BY_SLUG } from "@/lib/constants/heroes"
 
 export function CrosshairCard({ crosshair }: { crosshair: CrosshairListItem }) {
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(crosshair.likes ?? 0)
+  const heroName = HERO_BY_SLUG[crosshair.hero]?.name ?? crosshair.hero
 
   const previewSettings = useMemo(() => getPreviewSettings(crosshair), [crosshair])
 
@@ -44,7 +46,7 @@ export function CrosshairCard({ crosshair }: { crosshair: CrosshairListItem }) {
         )}
         <div className="absolute right-2 top-2">
           <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm">
-            {crosshair.hero}
+            {heroName}
           </Badge>
         </div>
       </Link>

@@ -10,6 +10,7 @@ import { auth } from "@/lib/auth"
 import { getCrosshairsByUser } from "@/lib/data/crosshairs"
 import { DeleteCrosshairForm } from "./_components/delete-crosshair-form"
 import Link from "next/link"
+import { HERO_BY_SLUG } from "@/lib/constants/heroes"
 
 export default async function DashboardPage() {
   const session = await auth.api.getSession({
@@ -57,60 +58,65 @@ export default async function DashboardPage() {
             </Card>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
-              {crosshairs.map((crosshair) => (
-                <Card key={crosshair.id} className="border-border bg-card/60">
-                  <CardHeader className="space-y-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <CardTitle className="text-lg">{crosshair.name}</CardTitle>
-                      <Badge variant="outline">{crosshair.hero}</Badge>
-                    </div>
-                    <CardDescription className="flex flex-wrap items-center gap-2 text-xs">
-                      <span>{crosshair.type}</span>
-                      <span className="text-muted-foreground">|</span>
-                      <span>{crosshair.color}</span>
-                      <span className="text-muted-foreground">|</span>
-                      <span>{new Intl.DateTimeFormat("zh-CN", { dateStyle: "medium" }).format(crosshair.createdAt)}</span>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3 text-sm">
-                    {crosshair.imageUrl ? (
-                      <div className="relative h-40 w-full overflow-hidden rounded-lg">
-                        <Image
-                          src={crosshair.imageUrl}
-                          alt={`${crosshair.name} 截图`}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 768px) 100vw, 50vw"
-                        />
+              {crosshairs.map((crosshair) => {
+                const heroName = HERO_BY_SLUG[crosshair.hero]?.name ?? crosshair.hero
+                return (
+                  <Card key={crosshair.id} className="border-border bg-card/60">
+                    <CardHeader className="space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <CardTitle className="text-lg">{crosshair.name}</CardTitle>
+                        <Badge variant="outline">{heroName}</Badge>
                       </div>
-                    ) : null}
-                    {crosshair.description ? (
-                      <p className="text-muted-foreground">{crosshair.description}</p>
-                    ) : (
-                      <p className="text-muted-foreground/70">暂无描述</p>
-                    )}
-                    <div className="grid grid-cols-2 gap-3 rounded-lg border border-border/60 bg-muted/30 p-3 text-xs">
-                      <div>
-                        <p className="text-muted-foreground">粗细</p>
-                        <p className="font-semibold">{crosshair.thickness}</p>
+                      <CardDescription className="flex flex-wrap items-center gap-2 text-xs">
+                        <span>{crosshair.type}</span>
+                        <span className="text-muted-foreground">|</span>
+                        <span>{crosshair.color}</span>
+                        <span className="text-muted-foreground">|</span>
+                        <span>
+                          {new Intl.DateTimeFormat("zh-CN", { dateStyle: "medium" }).format(crosshair.createdAt)}
+                        </span>
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3 text-sm">
+                      {crosshair.imageUrl ? (
+                        <div className="relative h-40 w-full overflow-hidden rounded-lg">
+                          <Image
+                            src={crosshair.imageUrl}
+                            alt={`${crosshair.name} 截图`}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                          />
+                        </div>
+                      ) : null}
+                      {crosshair.description ? (
+                        <p className="text-muted-foreground">{crosshair.description}</p>
+                      ) : (
+                        <p className="text-muted-foreground/70">暂无描述</p>
+                      )}
+                      <div className="grid grid-cols-2 gap-3 rounded-lg border border-border/60 bg-muted/30 p-3 text-xs">
+                        <div>
+                          <p className="text-muted-foreground">粗细</p>
+                          <p className="font-semibold">{crosshair.thickness}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">准星长度</p>
+                          <p className="font-semibold">{crosshair.crosshairLength}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">中心间隙</p>
+                          <p className="font-semibold">{crosshair.centerGap}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">不透明度</p>
+                          <p className="font-semibold">{crosshair.opacity}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-muted-foreground">准星长度</p>
-                        <p className="font-semibold">{crosshair.crosshairLength}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">中心间隙</p>
-                        <p className="font-semibold">{crosshair.centerGap}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">不透明度</p>
-                        <p className="font-semibold">{crosshair.opacity}</p>
-                      </div>
-                    </div>
-                    <DeleteCrosshairForm crosshairId={crosshair.id} />
-                  </CardContent>
-                </Card>
-              ))}
+                      <DeleteCrosshairForm crosshairId={crosshair.id} />
+                    </CardContent>
+                  </Card>
+                )
+              })}
             </div>
           )}
         </div>

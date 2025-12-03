@@ -18,10 +18,11 @@ import { Upload, X, ImageIcon, Check, AlertCircle, LogIn, Loader2 } from "lucide
 import { createCrosshairAction } from "@/app/actions/crosshair-actions"
 import { createCrosshairInitialState, type CreateCrosshairState } from "@/app/actions/crosshair-state"
 import { cn } from "@/lib/utils"
-import { HERO_NAME_LIST } from "@/lib/constants/heroes"
+import { HEROES } from "@/lib/constants/heroes"
 import { useSession } from "@/lib/auth-client"
 
-const heroNames = HERO_NAME_LIST
+const heroOptions = HEROES.map((hero) => ({ label: hero.name, value: hero.slug }))
+const defaultHeroValue = heroOptions[0]?.value ?? "general"
 
 const crosshairTypes = ["十字线", "圆点", "圆形", "十字线 + 圆点"]
 const crosshairColors = ["白色", "绿色", "黄色", "青色", "粉色", "红色", "蓝色", "橙色"]
@@ -31,7 +32,7 @@ export default function CreatePage() {
   const [uploadedImage, setUploadedImage] = useState<{ url: string; key: string } | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
-  const [selectedHero, setSelectedHero] = useState(heroNames[0])
+  const [selectedHero, setSelectedHero] = useState(defaultHeroValue)
   const [selectedType, setSelectedType] = useState(crosshairTypes[0])
   const [selectedColor, setSelectedColor] = useState(crosshairColors[0])
   const [state, formAction] = useActionState(createCrosshairAction, createCrosshairInitialState)
@@ -88,7 +89,7 @@ export default function CreatePage() {
       setPreviewImage(null)
       setUploadedImage(null)
       setUploadError(null)
-      setSelectedHero(heroNames[0])
+      setSelectedHero(defaultHeroValue)
       setSelectedType(crosshairTypes[0])
       setSelectedColor(crosshairColors[0])
     }
@@ -169,9 +170,9 @@ export default function CreatePage() {
                         <SelectValue placeholder="选择英雄" />
                       </SelectTrigger>
                       <SelectContent>
-                        {heroNames.map((hero) => (
-                          <SelectItem key={hero} value={hero}>
-                            {hero}
+                        {heroOptions.map((hero) => (
+                          <SelectItem key={hero.value} value={hero.value}>
+                            {hero.label}
                           </SelectItem>
                         ))}
                       </SelectContent>

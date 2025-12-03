@@ -11,6 +11,7 @@ import { CrosshairPreview } from "@/components/crosshair-preview"
 import { CrosshairCard } from "@/components/crosshair-card"
 import { getCrosshairById, getRelatedCrosshairs } from "@/lib/data/crosshairs"
 import { getPreviewSettings } from "@/lib/crosshair-preview-settings"
+import { HERO_BY_SLUG } from "@/lib/constants/heroes"
 
 export const revalidate = 0
 
@@ -35,6 +36,7 @@ export default async function CrosshairDetailPage({ params }: { params: Promise<
   })
 
   const previewSettings = getPreviewSettings(crosshair)
+  const heroName = HERO_BY_SLUG[crosshair.hero]?.name ?? crosshair.hero
   const createdAt = new Intl.DateTimeFormat("zh-CN", {
     dateStyle: "medium",
     timeStyle: "short",
@@ -97,7 +99,7 @@ export default async function CrosshairDetailPage({ params }: { params: Promise<
             <div className="space-y-6">
               <section className="rounded-2xl border border-border bg-card/60 p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-3">
-                  <Badge variant="secondary">{crosshair.hero}</Badge>
+                  <Badge variant="secondary">{heroName}</Badge>
                   <span className="text-sm text-muted-foreground">#{crosshair.id}</span>
                 </div>
                 <h1 className="text-3xl font-bold tracking-tight">{crosshair.name}</h1>
@@ -145,7 +147,7 @@ export default async function CrosshairDetailPage({ params }: { params: Promise<
             <section className="mt-16">
               <div className="mb-6 flex items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-semibold">更多 {crosshair.hero} 准星</h2>
+                  <h2 className="text-2xl font-semibold">更多 {heroName} 准星</h2>
                   <p className="text-sm text-muted-foreground">继续浏览其他玩家分享的配置，寻找灵感</p>
                 </div>
                 <Button variant="ghost" asChild>
