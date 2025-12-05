@@ -6,19 +6,36 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { CrosshairGallery } from "@/components/crosshair-gallery"
 import { HeroSwitcher } from "@/components/hero-switcher"
-import { HEROES, HERO_BY_SLUG } from "@/lib/constants/heroes"
+import { HEROES, HERO_BY_SLUG, type HeroInfo } from "@/lib/constants/heroes"
+
+type HeroRouteParams = { name?: string }
 
 interface HeroPageProps {
-  params: { name: string }
+  params?: HeroRouteParams | Promise<HeroRouteParams>
+}
+
+function getHeroFromParams(params?: HeroRouteParams): { hero: HeroInfo | undefined; slug: string } {
+  const slug = typeof params?.name === "string" ? params.name : ""
+  if (!slug) {
+    return { hero: undefined, slug }
+  }
+
+  return { hero: HERO_BY_SLUG[slug], slug }
+}
+
+async function resolveHeroFromPropsParams(
+  params?: HeroPageProps["params"],
+): Promise<{ hero: HeroInfo | undefined; slug: string }> {
+  const resolvedParams = await params
+  return getHeroFromParams(resolvedParams)
 }
 
 export async function generateStaticParams() {
   return HEROES.map((hero) => ({ name: hero.slug }))
 }
 
-export function generateMetadata({ params }: HeroPageProps): Metadata {
-  const { name } = params
-  const hero = HERO_BY_SLUG[name]
+export async function generateMetadata(props: HeroPageProps): Promise<Metadata> {
+  const { hero } = await resolveHeroFromPropsParams(props.params)
 
   if (!hero) {
     return {
@@ -34,9 +51,8 @@ export function generateMetadata({ params }: HeroPageProps): Metadata {
   }
 }
 
-export default function HeroPage({ params }: HeroPageProps) {
-  const { name } = params
-  const hero = HERO_BY_SLUG[name]
+export default async function HeroPage(props: HeroPageProps) {
+  const { hero, slug } = await resolveHeroFromPropsParams(props.params)
 
   if (!hero) {
     notFound()
@@ -76,11 +92,11 @@ export default function HeroPage({ params }: HeroPageProps) {
     <main className="min-h-screen bg-background">
       <Header />
       <CrosshairGallery
-        key={hero.slug}
+        key={slug}
         titlePrefix={`${hero.name} `}
         titleAccent="准星库"
         description={`精选适用于 ${hero.name} 的准星配置，结合社区评分与职业选手经验，支持滚动加载与搜索筛选。`}
-        defaultHero={hero.slug}
+        defaultHero={slug}
         heroLocked
         headerSlot={heroHeader}
       />
