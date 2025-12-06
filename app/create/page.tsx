@@ -19,12 +19,12 @@ import { createCrosshairAction } from "@/app/actions/crosshair-actions"
 import { createCrosshairInitialState, type CreateCrosshairState } from "@/app/actions/crosshair-state"
 import { cn } from "@/lib/utils"
 import { HEROES } from "@/lib/constants/heroes"
+import { CROSSHAIR_TYPES, DEFAULT_CROSSHAIR_TYPE } from "@/lib/constants/crosshair-types"
 import { useSession } from "@/lib/auth-client"
 
 const heroOptions = HEROES.map((hero) => ({ label: hero.name, value: hero.slug }))
 const defaultHeroValue = heroOptions[0]?.value ?? "general"
 
-const crosshairTypes = ["十字线", "圆点", "圆形", "十字线 + 圆点"]
 const crosshairColors = ["白色", "绿色", "黄色", "青色", "粉色", "红色", "蓝色", "橙色"]
 
 export default function CreatePage() {
@@ -33,7 +33,7 @@ export default function CreatePage() {
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [selectedHero, setSelectedHero] = useState(defaultHeroValue)
-  const [selectedType, setSelectedType] = useState(crosshairTypes[0])
+  const [selectedType, setSelectedType] = useState(DEFAULT_CROSSHAIR_TYPE)
   const [selectedColor, setSelectedColor] = useState(crosshairColors[0])
   const [state, formAction] = useActionState(createCrosshairAction, createCrosshairInitialState)
   const formRef = useRef<HTMLFormElement>(null)
@@ -90,7 +90,7 @@ export default function CreatePage() {
       setUploadedImage(null)
       setUploadError(null)
       setSelectedHero(defaultHeroValue)
-      setSelectedType(crosshairTypes[0])
+      setSelectedType(DEFAULT_CROSSHAIR_TYPE)
       setSelectedColor(crosshairColors[0])
     }
   }, [state.status])
@@ -275,9 +275,12 @@ export default function CreatePage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {crosshairTypes.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type}
+                          {CROSSHAIR_TYPES.map((typeOption) => (
+                            <SelectItem key={typeOption.value} value={typeOption.value}>
+                              <div className="flex flex-col gap-0.5">
+                                <span>{typeOption.label}</span>
+                                <span className="text-xs text-muted-foreground">{typeOption.description}</span>
+                              </div>
                             </SelectItem>
                           ))}
                         </SelectContent>
